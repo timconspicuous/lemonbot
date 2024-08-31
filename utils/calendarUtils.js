@@ -10,8 +10,10 @@ function getWeekRange(date) {
     const diff = currentDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust when day is Sunday
   
     const monday = new Date(currentDate.setDate(diff));
+    monday.setHours(0, 0, 0, 0);
     const friday = new Date(monday);
     friday.setDate(friday.getDate() + 4);
+    friday.setHours(23, 59, 0, 0);
   
     return {
         start: monday,
