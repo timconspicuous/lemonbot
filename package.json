@@ -1,0 +1,24 @@
+{
+  "name": "lemonbot",
+  "version": "0.1.0",
+  "description": "A Discord bot for Twitch integration",
+  "main": "bot.js",
+  "type": "module",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "author": "timconspicuous",
+  "dependencies": {
+    "canvas": "^2.11.2",
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5",
+    "ical": "^0.8.0",
+    "node-fetch": "^3.3.2"
+  },
+  "devDependencies": {
+    "@types/ical": "^0.8.3"
+  },
+  "engines": {
+    "node": "^20.13.1"
+  }
+}
