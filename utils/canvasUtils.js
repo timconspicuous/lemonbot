@@ -91,6 +91,8 @@ export async function generateCanvas(weekRange, events) {
                 } else if (event.location === 'Discord') {
                     drawContainer(entrycolors.discord, i);
                     icons[i] = 'Discord';
+                } else {
+                    drawContainer(entrycolors.none, i);
                 }
                 // Draw entries text
                 drawText(ctx, event.summary, entries.posX, entries.posY + spacing * i, entries.size);
