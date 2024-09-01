@@ -49,10 +49,19 @@ client.on(Events.InteractionCreate, async interaction => {
         if (!command) return;
 
         try {
-            await command.execute(interaction);
+            if (interaction.commandName === 'schedule') {
+                await interaction.deferReply();
+                await command.execute(interaction);
+            } else {
+                await command.execute(interaction);
+            }
         } catch (error) {
             console.error(error);
-            await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+            if (interaction.deferred) {
+                await interaction.editReply({ content: 'There was an error while executing this command!' });
+            } else {
+                await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+            }
         }
     } else if (interaction.isAutocomplete()) {
         if (interaction.commandName === 'schedule') {

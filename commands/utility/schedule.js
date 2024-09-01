@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, CommandInteraction, AttachmentBuilder } from 'discord.js';
 import { fetchCalendar } from '../../utils/calendarUtils.js';
 import { generateCanvas } from '../../utils/canvasUtils.js';
+import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
 
 export const data = new SlashCommandBuilder()
     .setName('schedule')
@@ -25,7 +26,7 @@ export async function execute(interaction) {
         // Assume it's a date string
         const parsedDate = new Date(weekOption);
         if (isNaN(parsedDate.getTime())) {
-            return interaction.reply('Invalid date format. Please use YYYY-MM-DD or "this" or "next".');
+            return interaction.editReply('Invalid date format. Please use YYYY-MM-DD or "this" or "next".');
         }
         targetDate = parsedDate;
     }
@@ -47,8 +48,11 @@ export async function execute(interaction) {
     const buffer = await generateCanvas(weekRange, events);
     const attachment = new AttachmentBuilder(buffer, { name: 'schedule.png' });
 
-    await interaction.reply({
-        content: replyText,
-        files: [attachment]
-    });
+    const results = await Promise.allSettled([
+        syndicateToBluesky(events, buffer),
+        interaction.editReply({
+            content: replyText,
+            files: [attachment]
+        })
+    ]);
 }
