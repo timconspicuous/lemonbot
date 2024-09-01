@@ -1,6 +1,11 @@
 // This file is intended for customization, NEVER use credentials here!
 
 export default {
+    flags: {
+        // Whether the schedule image is posted to Bluesky.
+        // Credentials must be set in .env for this to work.
+        syndicateImageToBluesky: false,
+    },
     canvas: {
         // If you want to register a font, place its .ttf file
         // in /assets/fonts/, the filename without extension

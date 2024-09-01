@@ -2,6 +2,8 @@ import { SlashCommandBuilder, CommandInteraction, AttachmentBuilder } from 'disc
 import { fetchCalendar } from '../../utils/calendarUtils.js';
 import { generateCanvas } from '../../utils/canvasUtils.js';
 import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
+import config from '../../config.js';
+const { flags } = config;
 
 export const data = new SlashCommandBuilder()
     .setName('schedule')
@@ -48,8 +50,15 @@ export async function execute(interaction) {
     const buffer = await generateCanvas(weekRange, events);
     const attachment = new AttachmentBuilder(buffer, { name: 'schedule.png' });
 
+    const syndicateImageToBluesky = async () => {
+        if (flags.syndicateImageToBluesky) {
+            await syndicateToBluesky(events, buffer);
+            return 'Syndication completed';
+        }
+        return 'Condition not met, syndication skipped';
+    }
     const results = await Promise.allSettled([
-        syndicateToBluesky(events, buffer),
+        syndicateImageToBluesky(),
         interaction.editReply({
             content: replyText,
             files: [attachment]
