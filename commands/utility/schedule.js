@@ -34,7 +34,8 @@ export async function execute(interaction) {
     }
 
     // Generate reply
-    let replyText = "";
+    let replyText = '';
+    let blueskyAltText = '';
     const {weekRange, events} = await fetchCalendar(targetDate);
     for (const key in events) {
         const event = events[key];
@@ -42,6 +43,7 @@ export async function execute(interaction) {
             const startDate = new Date(event.start)
             const unixTimestamp = Math.floor(startDate.getTime() / 1000);
             replyText += `\n➳ <t:${unixTimestamp}:F> ${event.summary}`;
+            blueskyAltText += `\n➳ ${startDate.toLocaleString()} ${event.summary}`;
         }
     }
     replyText = replyText.trimStart();
@@ -52,7 +54,7 @@ export async function execute(interaction) {
 
     const syndicateImageToBluesky = async () => {
         if (flags.syndicateImageToBluesky) {
-            await syndicateToBluesky(events, buffer);
+            await syndicateToBluesky(blueskyAltText, buffer);
             return 'Syndication completed';
         }
         return 'Condition not met, syndication skipped';
