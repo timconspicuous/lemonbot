@@ -75,7 +75,7 @@ export default {
     },
     bluesky: {
         // Boilerplate text and alt-text to accompany the schedule,
-        //you can use hashtags and links in text
+        // you can use hashtags and links in text.
         text: '',
         alttext: 'Weekly schedule:',
     },

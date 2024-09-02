@@ -2,21 +2,29 @@ import { SlashCommandBuilder, CommandInteraction, AttachmentBuilder } from 'disc
 import { fetchCalendar } from '../../utils/calendarUtils.js';
 import { generateCanvas } from '../../utils/canvasUtils.js';
 import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
+import storage from 'node-persist';
 import config from '../../config.js';
 const { flags } = config;
+await storage.init();
 
 export const data = new SlashCommandBuilder()
     .setName('schedule')
-    .setDescription('Posts weekly schedule.')
+    .setDescription('Posts or updates weekly schedule.')
     .addStringOption(option =>
         option.setName('week')
             .setDescription('Which week to show the schedule for (this/next/YYYY-MM-DD)')
             .setRequired(false)
             .setAutocomplete(true)
+    )
+    .addBooleanOption(option =>
+        option.setName('update')
+            .setDescription('Whether to update the existing schedule message')
+            .setRequired(false)
     );
 
 export async function execute(interaction) {
     const weekOption = interaction.options.getString('week') || 'this';
+    const updateOption = interaction.options.getBoolean('update') || false;
     
     let targetDate = new Date();
     
@@ -59,11 +67,50 @@ export async function execute(interaction) {
         }
         return 'Condition not met, syndication skipped';
     }
-    const results = await Promise.allSettled([
-        syndicateImageToBluesky(),
-        interaction.editReply({
+
+    let messageResponse;
+    if (updateOption) {
+        const channelId = await storage.getItem('channelId');
+        const messageId = await storage.getItem('messageId');
+        
+        if (!channelId || !messageId) {
+            return interaction.editReply('No stored message found to update. Please use the command without the update option first.');
+        }
+
+        try {
+            const channel = await interaction.client.channels.fetch(channelId);
+            const messageToUpdate = await channel.messages.fetch(messageId);
+            messageResponse = await messageToUpdate.edit({
+                content: replyText,
+                files: [attachment]
+            });
+        } catch (error) {
+            console.error('Error updating message:', error);
+            return interaction.editReply('Failed to update the stored message. It may have been deleted or inaccessible.');
+        }
+    } else {
+        messageResponse = await interaction.editReply({
             content: replyText,
             files: [attachment]
-        })
+        });
+    }
+
+    const results = await Promise.allSettled([
+        syndicateImageToBluesky(),
+        messageResponse
     ]);
+
+    // Storing message ID so it can be edited later
+    if (!updateOption) {
+        const {channelId, id: messageId} = messageResponse;
+        await storage.setItem('channelId', channelId);
+        await storage.setItem('messageId', messageId);
+    }
+
+    if (updateOption) {
+        await interaction.followUp({
+            content: 'Schedule updated successfully.',
+            ephemeral: true
+        });
+    }
 }

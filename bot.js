@@ -65,12 +65,16 @@ client.on(Events.InteractionCreate, async interaction => {
         }
     } else if (interaction.isAutocomplete()) {
         if (interaction.commandName === 'schedule') {
-            const focusedValue = interaction.options.getFocused();
-            const choices = ['this', 'next', new Date().toISOString().split('T')[0]];
-            const filtered = choices.filter(choice => choice.startsWith(focusedValue));
-            await interaction.respond(
-                filtered.map(choice => ({ name: choice, value: choice }))
-            );
+            const focusedOption = interaction.options.getFocused(true);
+            if (focusedOption.name === 'week') {
+                const choices = ['this', 'next', 'YYYY-MM-DD'];
+                const filtered = choices.filter(choice => 
+                    choice.toLowerCase().startsWith(focusedOption.value.toLowerCase())
+                );
+                await interaction.respond(
+                    filtered.map(choice => ({ name: choice, value: choice }))
+                );
+            }
         }
     }
 });

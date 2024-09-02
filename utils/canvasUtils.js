@@ -129,7 +129,7 @@ export async function generateCanvas(weekRange, events) {
     drawText(ctx, title.string, title.posX, title.posY, title.size);
 
     // Add weekrange
-    drawText(ctx, `${dateParser(weekRange.start, "dd.mm.")} - ${dateParser(weekRange.end, "dd.mm.")}`, weekrange.posX, weekrange.posY, weekrange.size);
+    drawText(ctx, `${dateParser(weekRange.start, 'dd.mm.')} - ${dateParser(weekRange.end, "dd.mm.")}`, weekrange.posX, weekrange.posY, weekrange.size);
 
     return canvas.toBuffer('image/png');
 }
