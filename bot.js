@@ -2,8 +2,13 @@ import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import express from 'express';
 import dotenv from 'dotenv';
+import { setupTwitchAuth } from './utils/twitchUtils.js';
 dotenv.config();
+
+const app = express();
+const port = 3000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -78,6 +83,15 @@ client.on(Events.InteractionCreate, async interaction => {
             }
         }
     }
+});
+
+// TODO: set up logic so this only runs once when there are no
+// tokens set or they have expired
+//setupTwitchAuth(app);
+
+app.listen(port, () => {
+    console.log(`App listening at http://localhost:${port}`);
+    console.log(`Please visit http://localhost:${port}/login to authenticate with Twitch`);
 });
 
 client.login(token);

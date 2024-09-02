@@ -1,6 +1,9 @@
 // This file is intended for customization, NEVER use credentials here!
 
 export default {
+    // calendarUtils will check for a timezone, but you can also set
+    // one manually if there are problems. Format is 'Europe/Brussels'
+    timezone: '',
     flags: {
         // Whether the schedule image is posted to Bluesky.
         // Credentials must be set in .env for this to work.

@@ -2,6 +2,7 @@ import fetch from 'node-fetch';
 import ical from 'ical';
 import dotenv from 'dotenv';
 dotenv.config();
+import config from '../config.js';
 
 // Function to get the start and end of the week for a given date
 function getWeekRange(date) {
@@ -33,6 +34,8 @@ export async function fetchCalendar(date = new Date()) {
         const icsData = await response.text();
         const events = ical.parseICS(icsData);
 
+        const timezoneMatch = icsData.match(/X-WR-TIMEZONE:(.*)/);
+        const timezone = config.timezone || timezoneMatch[1];
         const eventsArray = Object.entries(events);
 
         // Filter events within the week range
