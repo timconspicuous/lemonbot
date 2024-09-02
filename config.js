@@ -78,8 +78,8 @@ export default {
     },
     bluesky: {
         // Boilerplate text and alt-text to accompany the schedule,
-        // you can use hashtags and links in text.
-        text: '',
+        //you can use hashtags and links in text
+        text: '────⋆⋅☆⋅⋆──── #twitch https://www.twitch.tv/',
         alttext: 'Weekly schedule:',
     },
 };
