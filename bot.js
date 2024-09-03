@@ -50,7 +50,8 @@ client.on(Events.InteractionCreate, async interaction => {
 
         try {
             if (interaction.commandName === 'schedule') {
-                await interaction.deferReply();
+                const updateOption = interaction.options.getBoolean('update') || false;
+                await interaction.deferReply({ ephemeral: updateOption });
                 await command.execute(interaction);
             } else {
                 await command.execute(interaction);
@@ -58,7 +59,7 @@ client.on(Events.InteractionCreate, async interaction => {
         } catch (error) {
             console.error(error);
             if (interaction.deferred) {
-                await interaction.editReply({ content: 'There was an error while executing this command!' });
+                await interaction.editReply({ content: 'There was an error while executing this command!', ephemeral: true });
             } else {
                 await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
             }
