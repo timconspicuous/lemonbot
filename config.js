@@ -7,7 +7,7 @@ export default {
     flags: {
         // Whether the schedule image is posted to Bluesky.
         // Credentials must be set in .env for this to work.
-        syndicateImageToBluesky: true,
+        syndicateImageToBluesky: false,
     },
     canvas: {
         // If you want to register a font, place its .ttf file
