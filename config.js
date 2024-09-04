@@ -7,7 +7,7 @@ export default {
     flags: {
         // Whether the schedule image is posted to Bluesky.
         // Credentials must be set in .env for this to work.
-        syndicateImageToBluesky: false,
+        syndicateImageToBluesky: true,
     },
     canvas: {
         // If you want to register a font, place its .ttf file
@@ -81,5 +81,8 @@ export default {
         // you can use hashtags and links in text.
         text: '',
         alttext: 'Weekly schedule:',
+        // Only include events that have events set to Twitch,
+        // leave empty to include all.
+        locationFilter: ["Twitch"],
     },
 };

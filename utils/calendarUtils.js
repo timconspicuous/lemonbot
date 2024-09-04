@@ -54,3 +54,14 @@ export async function fetchCalendar(date = new Date()) {
         throw error; // Re-throw the error to be handled by the caller
     }
 }
+
+export function filterEvents(events, filterArr) {
+    let filteredEvents = {};
+    for (const key in events) {
+        const event = events[key];
+        if (filterArr && filterArr.includes(event.location)) {
+            filteredEvents[key] = event;
+        }
+    }
+    return filteredEvents;
+}

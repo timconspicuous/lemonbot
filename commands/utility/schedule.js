@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, CommandInteraction, AttachmentBuilder } from 'discord.js';
-import { fetchCalendar } from '../../utils/calendarUtils.js';
+import { fetchCalendar, filterEvents } from '../../utils/calendarUtils.js';
 import { generateCanvas } from '../../utils/canvasUtils.js';
 import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
 import storage from 'node-persist';
@@ -51,18 +51,27 @@ export async function execute(interaction) {
             const startDate = new Date(event.start)
             const unixTimestamp = Math.floor(startDate.getTime() / 1000);
             replyText += `\n➳ <t:${unixTimestamp}:F> ${event.summary}`;
+            if (config.bluesky.locationFilter && !config.bluesky.locationFilter.includes(event.location)) {
+                continue;
+            }
             blueskyAltText += `\n➳ ${startDate.toLocaleString()} ${event.summary}`;
         }
     }
     replyText = replyText.trimStart();
 
-    // Generate image attachment
+    // Generate image attachment(s)
     const buffer = await generateCanvas(weekRange, events);
     const attachment = new AttachmentBuilder(buffer, { name: 'schedule.png' });
 
     const syndicateImageToBluesky = async () => {
         if (flags.syndicateImageToBluesky) {
-            await syndicateToBluesky(blueskyAltText, buffer);
+            if (config.bluesky.locationFilter) {
+                const filteredEvents = filterEvents(events, config.bluesky.locationFilter);
+                const bskyBuffer = await generateCanvas(weekRange, filteredEvents);
+                await syndicateToBluesky(blueskyAltText, bskyBuffer);
+            } else {
+                await syndicateToBluesky(blueskyAltText, buffer);
+            }
             return 'Syndication completed';
         }
         return 'Condition not met, syndication skipped';
