@@ -8,6 +8,9 @@ export default {
         // Whether the schedule image is posted to Bluesky.
         // Credentials must be set in .env for this to work.
         syndicateImageToBluesky: false,
+        // Whether the schedule is synched with Twitch schedule.
+        // Credentials must be set in .env for this to work.
+        updateTwitchSchedule: false,
     },
     canvas: {
         // If you want to register a font, place its .ttf file
@@ -22,7 +25,7 @@ export default {
         assets: {
             twitchicon: 'twitch_icon.png',
             discordicon: 'discord_icon.png',
-            overlay: 'schedule_transparent.png',
+            overlay: 'overlay.png',
         },
 
         // Text is center and middle aligned, so posX and posY

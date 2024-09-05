@@ -2,6 +2,7 @@ import { SlashCommandBuilder, CommandInteraction, AttachmentBuilder } from 'disc
 import { fetchCalendar, filterEvents } from '../../utils/calendarUtils.js';
 import { generateCanvas } from '../../utils/canvasUtils.js';
 import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
+import { getChannelSchedule, createScheduleSegment } from '../../utils/twitchUtils.js';
 import storage from 'node-persist';
 import config from '../../config.js';
 const { flags } = config;
@@ -108,6 +109,10 @@ export async function execute(interaction) {
         syndicateImageToBluesky(),
         messageResponse
     ]);
+
+    // Twitch testing
+    //const twitchSchedule = await getChannelSchedule();
+    // console.log(twitchSchedule);
 
     // Storing message ID so it can be edited later
     if (!updateOption) {

@@ -11,18 +11,38 @@ const __dirname = path.dirname(__filename);
 const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2/authorize';
 const TWITCH_TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
 const REDIRECT_URI = 'http://localhost:3000/callback';
+if (!process.env.BROADCASTER_ID) {
+    try {
+        await getTwitchBroadcasterId();
+    } catch (error) {
+        console.error('Error establishing Broadcaster ID:', error);
+        throw error;
+    }
+}
 
-function updateEnv(accessToken, refreshToken) {
+function updateEnv(updates) {
     const envPath = path.resolve(__dirname, '..', '.env');
     const envContent = fs.readFileSync(envPath, 'utf8');
-    const updatedContent = envContent
-        .replace(/^TWITCH_ACCESS_TOKEN=.*$/m, `TWITCH_ACCESS_TOKEN=${accessToken}`)
-        .replace(/^TWITCH_REFRESH_TOKEN=.*$/m, `TWITCH_REFRESH_TOKEN=${refreshToken}`);
-    fs.writeFileSync(envPath, updatedContent);
 
-    // Update process.env with new values
-    process.env.TWITCH_ACCESS_TOKEN = accessToken;
-    process.env.TWITCH_REFRESH_TOKEN = refreshToken;
+    let updatedContent = envContent;
+
+    // Loop through the updates object and replace/add each key-value pair
+    for (const [key, value] of Object.entries(updates)) {
+        const regex = new RegExp(`^${key}=.*$`, 'm');
+
+        if (envContent.match(regex)) {
+            // Replace existing key-value pair
+            updatedContent = updatedContent.replace(regex, `${key}=${value}`);
+        } else {
+            // Add new key-value pair if it doesn't exist
+            updatedContent += `\n${key}=${value}`;
+        }
+
+        // Update process.env with new values dynamically
+        process.env[key] = value;
+    }
+
+    fs.writeFileSync(envPath, updatedContent);
 }
 
 export function setupTwitchAuth(app) {
@@ -46,7 +66,10 @@ export function setupTwitchAuth(app) {
             });
 
             const { access_token, refresh_token } = response.data;
-            updateEnv(access_token, refresh_token);
+            updateEnv({
+                TWITCH_ACCESS_TOKEN: access_token,
+                TWITCH_REFRESH_TOKEN: refresh_token,
+            });
             res.send('Authentication successful! You can close this window.');
         } catch (error) {
             console.error('Error exchanging code for token:', error);
@@ -72,20 +95,70 @@ export async function getTwitchOAuthToken() {
     }
 }
 
-export async function createScheduleSegment(broadcasterId, startTime, duration, title) {
+export async function getTwitchBroadcasterId() {
     try {
-        const response = await axios.post('https://api.twitch.tv/helix/schedule/segment', {
-            broadcaster_id: broadcasterId,
-            start_time: startTime,
-            duration: duration,
-            title: title,
-            category_id: '0',
-            is_recurring: false
-        }, {
+        const accessToken = await getTwitchOAuthToken();
+        const response = await axios.get('https://api.twitch.tv/helix/users', {
             headers: {
                 'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${accessToken}`
+            },
+            params: {
+                login: process.env.LOGIN_NAME
+            }
+        });
+
+        const broadcasterId = response.data.data[0].id;
+        updateEnv({
+            BROADCASTER_ID: broadcasterId,
+        });
+        return broadcasterId;
+    } catch (error) {
+        console.error('Error getting Twitch Broadcaster ID:', error);
+        throw error;
+    }
+}
+
+export async function searchTwitchCategories(name) {
+
+}
+
+export async function getChannelSchedule() {
+    try {
+        const accessToken = await getTwitchOAuthToken();
+        const response = await axios.get('https://api.twitch.tv/helix/schedule', {
+            headers: {
+                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            params: {
+                broadcaster_id: process.env.BROADCASTER_ID,
+            }
+        });
+
+        return response.data.data;
+    } catch (error) {
+        console.error('Error getting schedule:', error.response.data);
+    }
+}
+
+export async function createScheduleSegment(segmentData) {
+    // start_time: segmentData.startTime,
+    // timezone: segmentData.timezone,
+    // duration: segmentData.duration,
+    // // Parameters below are not required
+    // is_recurring: true, //fix
+    // category_id: segmentData.categoryId || '0',
+    // title: segmentData.title || '',
+    try {
+        const response = await axios.post('https://api.twitch.tv/helix/schedule/segment', segmentData, {
+            headers: {
                 'Authorization': `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
-                'Content-Type': 'application/json'
+                'Client-Id': process.env.TWITCH_CLIENT_ID,
+                'Content-Type': 'application/json',
+            },
+            params: {
+                broadcaster_id: process.env.BROADCASTER_ID,
             }
         });
 
