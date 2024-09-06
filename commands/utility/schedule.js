@@ -127,7 +127,7 @@ export async function execute(interaction) {
             'timezone': timezone,
             'is_recurring': true,
             'duration': duration.toString(),
-            'category_id': category[0].id,
+            'category_id': (category[0] && category[0].id) ? category[0].id : null,
             'title': event.description,
         }
 

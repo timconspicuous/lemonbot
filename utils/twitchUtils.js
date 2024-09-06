@@ -144,7 +144,6 @@ export async function getTwitchBroadcasterId() {
 }
 
 export async function searchTwitchCategories(name) {
-    const queryName = encodeURIComponent(name);
     try {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/search/categories', {
@@ -153,7 +152,7 @@ export async function searchTwitchCategories(name) {
                 'Authorization': `Bearer ${accessToken}`,
             },
             params: {
-                query: queryName,
+                query: name,
             }
         });
 
