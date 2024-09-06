@@ -155,14 +155,14 @@ export async function searchTwitchCategories(name) {
                 query: name,
             }
         });
+        if (response.data.data == []) {
+            console.warn('Twitch category not found, verify input name.')
+        }
 
         return response.data.data;
     } catch (error) {
-        if (error.response && error.response.status === 404) {
-            console.warn('No preexisting schedule:', error.response.data);
-        } else {
-            console.error('Error getting schedule:', error.response.data);
-        }
+        console.error('Error getting Twitch category:', error.response.data);
+        throw error;
     }
 }
 
@@ -181,7 +181,12 @@ export async function getChannelSchedule() {
 
         return response.data.data;
     } catch (error) {
-        console.error('Error getting schedule:', error.response.data);
+        if (error.response && error.response.status === 404) {
+            console.warn('No preexisting schedule:', error.response.data);
+        } else {
+            console.error('Error getting schedule:', error.response.data);
+            throw error;
+        }
     }
 }
 
