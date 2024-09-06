@@ -1,8 +1,8 @@
-import { SlashCommandBuilder, CommandInteraction, AttachmentBuilder } from 'discord.js';
-import { fetchCalendar, filterEvents } from '../../utils/calendarUtils.js';
+import { SlashCommandBuilder, AttachmentBuilder } from 'discord.js';
+import { fetchCalendar, filterEventsByLocation, filterEventsByWeek } from '../../utils/calendarUtils.js';
 import { generateCanvas } from '../../utils/canvasUtils.js';
 import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
-import { getChannelSchedule, createScheduleSegment } from '../../utils/twitchUtils.js';
+import { refreshAccessToken, searchTwitchCategories, getChannelSchedule, createScheduleSegment, deleteScheduleSegment } from '../../utils/twitchUtils.js';
 import storage from 'node-persist';
 import config from '../../config.js';
 const { flags } = config;
@@ -26,9 +26,9 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction) {
     const weekOption = interaction.options.getString('week') || 'this';
     const updateOption = interaction.options.getBoolean('update') || false;
-    
+
     let targetDate = new Date();
-    
+
     if (weekOption === 'this') {
         // targetDate is already set to today
     } else if (weekOption === 'next') {
@@ -45,7 +45,7 @@ export async function execute(interaction) {
     // Generate reply
     let replyText = '';
     let blueskyAltText = '';
-    const {weekRange, events} = await fetchCalendar(targetDate);
+    const { weekRange, timezone, events } = await fetchCalendar(targetDate);
     for (const key in events) {
         const event = events[key];
         if (event.type === 'VEVENT') {
@@ -67,7 +67,7 @@ export async function execute(interaction) {
     const syndicateImageToBluesky = async () => {
         if (flags.syndicateImageToBluesky) {
             if (config.bluesky.locationFilter) {
-                const filteredEvents = filterEvents(events, config.bluesky.locationFilter);
+                const filteredEvents = filterEventsByLocation(events, config.bluesky.locationFilter);
                 const bskyBuffer = await generateCanvas(weekRange, filteredEvents);
                 await syndicateToBluesky(blueskyAltText, bskyBuffer);
             } else {
@@ -82,7 +82,7 @@ export async function execute(interaction) {
     if (updateOption) {
         const channelId = await storage.getItem('channelId');
         const messageId = await storage.getItem('messageId');
-        
+
         if (!channelId || !messageId) {
             return interaction.editReply('No stored message found to update. Please use the command without the update option first.');
         }
@@ -111,12 +111,61 @@ export async function execute(interaction) {
     ]);
 
     // Twitch testing
-    //const twitchSchedule = await getChannelSchedule();
-    // console.log(twitchSchedule);
+    async function createSegmentRequestBody(event, timezone) {
+        let duration = event.end.getTime() - event.start.getTime();
+        duration = Math.floor(duration / 60000);
+        duration = Math.max(30, Math.min(duration, 1380));
+        let category;
+        try {
+            category = await searchTwitchCategories(event.summary);
+        } catch (error) {
+            throw error;
+        }
+
+        const body = {
+            'start_time': event.start.toISOString(),
+            'timezone': timezone,
+            'is_recurring': true,
+            'duration': duration.toString(),
+            'category_id': category[0].id,
+            'title': event.description,
+        }
+
+        return body;
+    }
+    const twitchSchedule = await getChannelSchedule();
+    const twitchScheduleArr = (twitchSchedule && twitchSchedule.segments) ? filterEventsByWeek(twitchSchedule.segments, weekRange) : [];
+    for (const [_, event] of twitchScheduleArr) {
+        try {
+            // Try to delete the schedule segment
+            await deleteScheduleSegment(event.id);
+        } catch (error) {
+            // If token is expired (401), refresh token and retry
+            if (error.response && error.response.status === 401) {
+                try {
+                    await refreshAccessToken();
+                    await deleteScheduleSegment(event.id);
+                } catch (refreshError) {
+                    throw refreshError;
+                }
+            } else {
+                throw error;
+            }
+        }
+    }
+    for (const key in events) {
+        const event = events[key];
+        const requestBody = await createSegmentRequestBody(event, timezone);
+        try {
+            await createScheduleSegment(requestBody);
+        } catch (error) {
+            throw error;
+        }
+    }
 
     // Storing message ID so it can be edited later
     if (!updateOption) {
-        const {channelId, id: messageId} = messageResponse;
+        const { channelId, id: messageId } = messageResponse;
         await storage.setItem('channelId', channelId);
         await storage.setItem('messageId', messageId);
     }

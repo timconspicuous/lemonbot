@@ -78,6 +78,30 @@ export function setupTwitchAuth(app) {
     });
 }
 
+export async function refreshAccessToken() {
+    try {
+        const response = await axios.post(TWITCH_TOKEN_URL, null, {
+            params: {
+                client_id: process.env.TWITCH_CLIENT_ID,
+                client_secret: process.env.TWITCH_CLIENT_SECRET,
+                refresh_token: process.env.TWITCH_REFRESH_TOKEN,
+                grant_type: 'refresh_token'
+            }
+        });
+
+        const { access_token, refresh_token } = response.data;
+        updateEnv({
+            TWITCH_ACCESS_TOKEN: access_token,
+            TWITCH_REFRESH_TOKEN: refresh_token,
+        });
+
+        return access_token;
+    } catch (error) {
+        console.error('Error refreshing access token:', error.response ? error.response.data : error.message);
+        throw new Error('Failed to refresh access token');
+    }
+}
+
 export async function getTwitchOAuthToken() {
     try {
         const response = await axios.post(TWITCH_TOKEN_URL, null, {
@@ -120,7 +144,23 @@ export async function getTwitchBroadcasterId() {
 }
 
 export async function searchTwitchCategories(name) {
+    const queryName = encodeURIComponent(name);
+    try {
+        const accessToken = await getTwitchOAuthToken();
+        const response = await axios.get('https://api.twitch.tv/helix/search/categories', {
+            headers: {
+                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            params: {
+                query: queryName,
+            }
+        });
 
+        return response.data.data;
+    } catch (error) {
+        console.error('Error getting schedule:', error.response.data);
+    }
 }
 
 export async function getChannelSchedule() {
@@ -143,18 +183,11 @@ export async function getChannelSchedule() {
 }
 
 export async function createScheduleSegment(segmentData) {
-    // start_time: segmentData.startTime,
-    // timezone: segmentData.timezone,
-    // duration: segmentData.duration,
-    // // Parameters below are not required
-    // is_recurring: true, //fix
-    // category_id: segmentData.categoryId || '0',
-    // title: segmentData.title || '',
     try {
         const response = await axios.post('https://api.twitch.tv/helix/schedule/segment', segmentData, {
             headers: {
-                'Authorization': `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
                 'Client-Id': process.env.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
                 'Content-Type': 'application/json',
             },
             params: {
@@ -165,6 +198,26 @@ export async function createScheduleSegment(segmentData) {
         return response.data;
     } catch (error) {
         console.error('Error creating schedule segment:', error);
+        throw error;
+    }
+}
+
+export async function deleteScheduleSegment(streamId) {
+    try {
+        const response = await axios.delete('https://api.twitch.tv/helix/schedule/segment', {
+            headers: {
+                'Client-Id': process.env.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
+            },
+            params: {
+                broadcaster_id: process.env.BROADCASTER_ID,
+                id: streamId,
+            }
+        });
+
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting schedule segment:', error);
         throw error;
     }
 }

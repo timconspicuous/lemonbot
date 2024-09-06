@@ -32,30 +32,24 @@ export async function fetchCalendar(date = new Date()) {
         }
 
         const icsData = await response.text();
-        const events = ical.parseICS(icsData);
+        let events = ical.parseICS(icsData);
 
         const timezoneMatch = icsData.match(/X-WR-TIMEZONE:(.*)/);
         const timezone = config.timezone || timezoneMatch[1];
-        const eventsArray = Object.entries(events);
 
-        // Filter events within the week range
-        const filteredEventsArray = eventsArray.filter(([, event]) => {
-            const eventStart = event.start;
-            return eventStart >= weekRange.start && eventStart <= weekRange.end;
-        });
-        
-        // Sort the filtered events
-        filteredEventsArray.sort(([, eventA], [, eventB]) => eventA.start.getTime() - eventB.start.getTime());
+        // Filter and sort events
+        const eventsArray = filterEventsByWeek(events, weekRange);
+        eventsArray.sort(([, eventA], [, eventB]) => eventA.start.getTime() - eventB.start.getTime());
 
-        const sortedEvents = Object.fromEntries(filteredEventsArray);
+        events = Object.fromEntries(eventsArray);
 
-        return {weekRange, events: sortedEvents};
+        return {weekRange, timezone, events};
     } catch (error) {
-        throw error; // Re-throw the error to be handled by the caller
+        throw error;
     }
 }
 
-export function filterEvents(events, filterArr) {
+export function filterEventsByLocation(events, filterArr) {
     let filteredEvents = {};
     for (const key in events) {
         const event = events[key];
@@ -64,4 +58,15 @@ export function filterEvents(events, filterArr) {
         }
     }
     return filteredEvents;
+}
+
+export function filterEventsByWeek(events, weekRange) {
+    // Attention: this can take in an object or an array, but will always return an array.
+    // The ternary operator is for two types of input: iCalendar events and Twitch schedule.
+    const eventsArray = (typeof events === 'object') ? Object.entries(events) : events;
+    const filteredEventsArray = eventsArray.filter(([, event]) => {
+        const eventStart = event.start || new Date(event.start_time);
+        return eventStart >= weekRange.start && eventStart <= weekRange.end;
+    });
+    return filteredEventsArray;
 }
