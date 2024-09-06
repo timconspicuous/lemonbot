@@ -158,7 +158,11 @@ export async function searchTwitchCategories(name) {
 
         return response.data.data;
     } catch (error) {
-        console.error('Error getting schedule:', error.response.data);
+        if (error.response && error.response.status === 404) {
+            console.warn('No preexisting schedule:', error.response.data);
+        } else {
+            console.error('Error getting schedule:', error.response.data);
+        }
     }
 }
 
