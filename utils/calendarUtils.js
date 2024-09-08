@@ -59,12 +59,15 @@ export function filterEventsByLocation(events, filterArr) {
     return filteredEvents;
 }
 
-export function filterEventsByWeek(events, weekRange) {
+export function filterEventsByWeek(events, weekRange, filterOutPastEvents = false) {
     // Attention: this can take in an object or an array, but will always return an array.
     // The ternary operator is for two types of input: iCalendar events and Twitch schedule.
     const eventsArray = (typeof events === 'object') ? Object.entries(events) : events;
     const filteredEventsArray = eventsArray.filter(([, event]) => {
         const eventStart = event.start || new Date(event.start_time);
+        if (filterOutPastEvents && new Date() > eventStart) {
+            return eventStart >= new Date() && eventStart <= weekRange.end;
+        }
         return eventStart >= weekRange.start && eventStart <= weekRange.end;
     });
     return filteredEventsArray;

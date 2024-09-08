@@ -129,8 +129,9 @@ export async function generateCanvas(weekRange, events) {
     drawText(ctx, title.string, title.posX, title.posY, title.size);
 
     // Add weekrange
-    weekRange.end.setDate(weekRange.end.getDate() - 2); // Limits weekRange to Mon - Fri as long as there are 5 slots
-    drawText(ctx, `${dateParser(weekRange.start, 'dd.mm.')} - ${dateParser(weekRange.end, "dd.mm.")}`, weekrange.posX, weekrange.posY, weekrange.size);
+    const friday = new Date(weekRange.end);
+    friday.setDate(friday.getDate() - 2); // Limit week until Friday if there are only five slots
+    drawText(ctx, `${dateParser(weekRange.start, 'dd.mm.')} - ${dateParser(friday, "dd.mm.")}`, weekrange.posX, weekrange.posY, weekrange.size);
 
     return canvas.toBuffer('image/png');
 }

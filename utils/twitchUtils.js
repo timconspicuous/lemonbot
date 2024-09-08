@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 dotenv.config();
 import config from '../config.js';
 const { timezone } = config;
-import { filterEventsByWeek } from './calendarUtils.js'; 
+import { filterEventsByLocation, filterEventsByWeek } from './calendarUtils.js'; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -271,8 +271,10 @@ export async function updateChannelSchedule(events, weekRange) {
         await deleteScheduleSegment(event.id);
     }
     
-    for (const key in events) {
-        const event = events[key];
+    const eventsArr = filterEventsByWeek(events, weekRange, true);
+    const futureEvents = Object.fromEntries(eventsArr);
+    for (const key in futureEvents) {
+        const event = futureEvents[key];
         const requestBody = await createSegmentRequestBody(event, timezone);
         await createScheduleSegment(requestBody);
     }
