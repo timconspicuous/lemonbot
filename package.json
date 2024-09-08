@@ -16,13 +16,11 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "ical": "^0.8.0",
-    "node-fetch": "^3.3.2",
-    "node-persist": "^4.0.3"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
-    "@types/ical": "^0.8.3",
-    "@types/node-persist": "^3.1.8"
+    "@types/ical": "^0.8.3"
   },
   "engines": {
     "node": "^20.13.1"
