@@ -8,17 +8,16 @@ import config from '../config.js';
 function getWeekRange(date) {
     const currentDate = new Date(date);
     const dayOfWeek = currentDate.getDay();
-    const diff = currentDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // Adjust when day is Sunday
-  
+    const diff = currentDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
     const monday = new Date(currentDate.setDate(diff));
     monday.setHours(0, 0, 0, 0);
-    const friday = new Date(monday);
-    friday.setDate(friday.getDate() + 4);
-    friday.setHours(23, 59, 0, 0);
+    const sunday = new Date(monday);
+    sunday.setDate(sunday.getDate() + 6);
+    sunday.setHours(23, 59, 0, 0);
   
     return {
         start: monday,
-        end: friday
+        end: sunday
     };
 }
 

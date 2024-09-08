@@ -4,6 +4,8 @@ import path from 'path';
 import config from '../config.js';
 const fontsDirectory = 'assets/fonts';
 
+await registerAllFonts(fontsDirectory);
+
 async function registerAllFonts(directory) {
   try {
     // Read all files in the directory
@@ -43,8 +45,6 @@ function dateParser(date, argument) {
 }
 
 export async function generateCanvas(weekRange, events) {
-    await registerAllFonts(fontsDirectory);
-    
     const {
         weekdays,
         container,
@@ -129,6 +129,7 @@ export async function generateCanvas(weekRange, events) {
     drawText(ctx, title.string, title.posX, title.posY, title.size);
 
     // Add weekrange
+    weekRange.end.setDate(weekRange.end.getDate() - 2); // Limits weekRange to Mon - Fri as long as there are 5 slots
     drawText(ctx, `${dateParser(weekRange.start, 'dd.mm.')} - ${dateParser(weekRange.end, "dd.mm.")}`, weekrange.posX, weekrange.posY, weekrange.size);
 
     return canvas.toBuffer('image/png');
