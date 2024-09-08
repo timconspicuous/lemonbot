@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, AttachmentBuilder } from 'discord.js';
+import { ContextMenuCommandBuilder, ApplicationCommandType, AttachmentBuilder } from 'discord.js';
 import { fetchCalendar, filterEventsByLocation } from '../../utils/calendarUtils.js';
 import { generateCanvas } from '../../utils/canvasUtils.js';
 import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
@@ -6,38 +6,30 @@ import { updateChannelSchedule } from '../../utils/twitchUtils.js';
 import config from '../../config.js';
 const { flags } = config;
 
-export const data = new SlashCommandBuilder()
-    .setName('schedule')
-    .setDescription('Posts weekly schedule.')
-    .addStringOption(option =>
-        option.setName('week')
-            .setDescription('Which week to show the schedule for (this/next/YYYY-MM-DD)')
-            .setRequired(false)
-            .setAutocomplete(true)
-    );
+export const data = new ContextMenuCommandBuilder()
+    .setName('Update Schedule')
+    .setType(ApplicationCommandType.Message);
 
 export async function execute(interaction) {
-    const weekOption = interaction.options.getString('week') || 'this';
+    const targetMessage = interaction.targetMessage;
 
-    let targetDate = new Date();
-
-    if (weekOption === 'this') {
-        // targetDate is already set to today
-    } else if (weekOption === 'next') {
-        targetDate.setDate(targetDate.getDate() + 7);
-    } else {
-        // Assume it's a date string
-        const parsedDate = new Date(weekOption);
-        if (isNaN(parsedDate.getTime())) {
-            return interaction.editReply('Invalid date format. Please use YYYY-MM-DD or "this" or "next".');
-        }
-        targetDate = parsedDate;
+    // Check if the message was sent by the bot
+    if (targetMessage.author.id !== interaction.client.user.id) {
+        return interaction.reply({ content: 'This command can only be used on schedule messages posted by the bot.', ephemeral: true });
     }
 
-    // Generate reply
+    // Extract the date from the existing message content
+    const dateMatch = targetMessage.content.match(/<t:(\d+):/);
+    if (!dateMatch) {
+        return interaction.reply({ content: 'Unable to determine the date of the existing schedule.', ephemeral: true });
+    }
+
+    const targetDate = new Date(parseInt(dateMatch[1]) * 1000);
+
+    // Generate updated reply
     let replyText = '';
     let blueskyAltText = '';
-    const { weekRange, events } = await fetchCalendar(targetDate);
+    const { weekRange, timezone, events } = await fetchCalendar(targetDate);
     for (const key in events) {
         const event = events[key];
         if (event.type === 'VEVENT') {
@@ -79,14 +71,22 @@ export async function execute(interaction) {
         }
     }
 
-    const messageResponse = await interaction.editReply({
-        content: replyText,
-        files: [attachment]
-    });
+    await interaction.deferReply({ ephemeral: true });
 
-    const results = await Promise.allSettled([
-        syndicateImageToBluesky(),
-        updateTwitchSchedule(),
-        messageResponse
-    ]);
+    try {
+        await targetMessage.edit({
+            content: replyText,
+            files: [attachment]
+        });
+
+        const results = await Promise.allSettled([
+            syndicateImageToBluesky(),
+            updateTwitchSchedule()
+        ]);
+
+        await interaction.editReply('Schedule updated successfully.');
+    } catch (error) {
+        console.error('Error updating message:', error);
+        await interaction.editReply('Failed to update the schedule message. It may have been deleted or inaccessible.');
+    }
 }

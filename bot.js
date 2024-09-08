@@ -45,7 +45,7 @@ for (const folder of commandFolders) {
 }
 
 client.once(Events.ClientReady, readyClient => {
-	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+    console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -74,13 +74,23 @@ client.on(Events.InteractionCreate, async interaction => {
             const focusedOption = interaction.options.getFocused(true);
             if (focusedOption.name === 'week') {
                 const choices = ['this', 'next', 'YYYY-MM-DD'];
-                const filtered = choices.filter(choice => 
+                const filtered = choices.filter(choice =>
                     choice.toLowerCase().startsWith(focusedOption.value.toLowerCase())
                 );
                 await interaction.respond(
                     filtered.map(choice => ({ name: choice, value: choice }))
                 );
             }
+        }
+    } else if (interaction.isMessageContextMenuCommand()) {
+        const command = client.commands.get(interaction.commandName);
+        if (!command) return;
+
+        try {
+            await command.execute(interaction);
+        } catch (error) {
+            console.error(error);
+            await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
         }
     }
 });

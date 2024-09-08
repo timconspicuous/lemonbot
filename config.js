@@ -10,7 +10,7 @@ export default {
         syndicateImageToBluesky: false,
         // Whether the schedule is synched with Twitch schedule.
         // Credentials must be set in .env for this to work.
-        updateTwitchSchedule: true,
+        updateTwitchSchedule: false,
     },
     canvas: {
         // If you want to register a font, place its .ttf file
