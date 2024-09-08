@@ -17,7 +17,9 @@ export async function syndicateToBluesky(altText, buffer) {
     const text = config.bluesky.text;
     altText = config.bluesky.alttext + altText;
     altText = altText.trimStart();
-    //TO-DO: trim at 1000 chars
+    if (altText.length > 1000) {
+        altText = altText.slice(0, 1000 - 3) + '...';
+    }
 
     const uint8arr = new Uint8Array(buffer);
     const { width, height } = config.canvas.size;
