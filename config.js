@@ -8,9 +8,13 @@ export default {
         // Whether the schedule image is posted to Bluesky.
         // Credentials must be set in .env for this to work.
         syndicateImageToBluesky: false,
-        // Whether the schedule is synched with Twitch schedule.
+        // Whether the schedule is synced with Twitch schedule.
         // Credentials must be set in .env for this to work.
         updateTwitchSchedule: false,
+        // Whether the above are executed when the updateSchedule
+        // Context Menu Command is called.
+        syndicateImageToBlueskyOnUpdate: false,
+        updateTwitchScheduleOnUpdate: false,
     },
     canvas: {
         // If you want to register a font, place its .ttf file

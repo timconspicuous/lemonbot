@@ -55,8 +55,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
         try {
             if (interaction.commandName === 'schedule') {
-                const updateOption = interaction.options.getBoolean('update') || false;
-                await interaction.deferReply({ ephemeral: updateOption });
+                await interaction.deferReply();
                 await command.execute(interaction);
             } else {
                 await command.execute(interaction);

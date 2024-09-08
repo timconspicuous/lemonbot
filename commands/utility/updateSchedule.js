@@ -49,7 +49,7 @@ export async function execute(interaction) {
     const attachment = new AttachmentBuilder(buffer, { name: 'schedule.png' });
 
     const syndicateImageToBluesky = async () => {
-        if (flags.syndicateImageToBluesky) {
+        if (flags.syndicateImageToBlueskyOnUpdate) {
             if (config.bluesky.locationFilter) {
                 const filteredEvents = filterEventsByLocation(events, config.bluesky.locationFilter);
                 const bskyBuffer = await generateCanvas(weekRange, filteredEvents);
@@ -57,36 +57,37 @@ export async function execute(interaction) {
             } else {
                 await syndicateToBluesky(blueskyAltText, buffer);
             }
-            return 'Bluesky syndication completed.';
+            return { action: 'Bluesky', status: 'completed' };
         }
-        return 'Condition not met, syndication skipped.';
+        return { action: 'Bluesky', status: 'skipped' };
     }
 
     const updateTwitchSchedule = async () => {
-        if (flags.updateTwitchSchedule) {
+        if (flags.updateTwitchScheduleOnUpdate) {
             await updateChannelSchedule(events, weekRange);
-            return 'Twitch channel schedule updated.'
-        } else {
-            return 'Condition not met, channel schedule update skipped.'
+            return { action: 'Twitch', status: 'completed' };
         }
+        return { action: 'Twitch', status: 'skipped' };
     }
 
     await interaction.deferReply({ ephemeral: true });
 
-    try {
-        await targetMessage.edit({
+    const results = await Promise.allSettled([
+        syndicateImageToBluesky(),
+        updateTwitchSchedule(),
+        targetMessage.edit({
             content: replyText,
             files: [attachment]
-        });
+        })
+    ]);
 
-        const results = await Promise.allSettled([
-            syndicateImageToBluesky(),
-            updateTwitchSchedule()
-        ]);
+    const actionResults = results.slice(0, 2).map(result => result.value);
+    const actionsPerformed = actionResults.filter(result => result.status === 'completed');
 
-        await interaction.editReply('Schedule updated successfully.');
-    } catch (error) {
-        console.error('Error updating message:', error);
-        await interaction.editReply('Failed to update the schedule message. It may have been deleted or inaccessible.');
+    if (actionsPerformed.length > 0) {
+        const summaryText = actionResults
+            .map(result => `${result.action} syndication ${result.status}.`)
+            .join('\n');
+        await interaction.followUp({ content: summaryText, ephemeral: true });
     }
 }

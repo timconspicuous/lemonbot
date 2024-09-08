@@ -77,17 +77,17 @@ export async function execute(interaction) {
             } else {
                 await syndicateToBluesky(blueskyAltText, buffer);
             }
-            return 'Bluesky syndication completed.';
+            return { action: 'Bluesky', status: 'completed' };
         }
-        return 'Bluesky syndication skipped.';
+        return { action: 'Bluesky', status: 'skipped' };
     }
 
     const updateTwitchSchedule = async () => {
         if (updateTwitchOverride !== null ? updateTwitchOverride : flags.updateTwitchSchedule) {
             await updateChannelSchedule(events, weekRange);
-            return 'Twitch channel schedule updated.';
+            return { action: 'Twitch', status: 'completed' };
         }
-        return 'Twitch channel schedule update skipped.';
+        return { action: 'Twitch', status: 'skipped' };
     }
 
     const results = await Promise.allSettled([
@@ -99,8 +99,13 @@ export async function execute(interaction) {
         })
     ]);
 
-    if (syndicateBlueskyOverride || updateTwitchOverride) {
-        const summaryText = results.slice(0, 2).map(result => result.value).join('\n');
-        await interaction.followUp({ content: summaryText, ephemeral: true });    
+    const actionResults = results.slice(0, 2).map(result => result.value);
+    const actionsPerformed = actionResults.filter(result => result.status === 'completed');
+
+    if (actionsPerformed.length > 0) {
+        const summaryText = actionResults
+            .map(result => `${result.action} syndication ${result.status}.`)
+            .join('\n');
+        await interaction.followUp({ content: summaryText, ephemeral: true });
     }
 }
