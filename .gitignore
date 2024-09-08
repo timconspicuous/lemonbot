@@ -2,4 +2,5 @@ node_modules
 .node-persist
 .env
 /assets/*
+!/assets/overlay.png
 /assets/fonts/*
