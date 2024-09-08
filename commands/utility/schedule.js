@@ -1,8 +1,8 @@
 import { SlashCommandBuilder, AttachmentBuilder } from 'discord.js';
-import { fetchCalendar, filterEventsByLocation, filterEventsByWeek } from '../../utils/calendarUtils.js';
+import { fetchCalendar, filterEventsByLocation } from '../../utils/calendarUtils.js';
 import { generateCanvas } from '../../utils/canvasUtils.js';
 import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
-import { refreshAccessToken, searchTwitchCategories, getChannelSchedule, createScheduleSegment, deleteScheduleSegment } from '../../utils/twitchUtils.js';
+import { updateChannelSchedule } from '../../utils/twitchUtils.js';
 import storage from 'node-persist';
 import config from '../../config.js';
 const { flags } = config;
@@ -73,9 +73,18 @@ export async function execute(interaction) {
             } else {
                 await syndicateToBluesky(blueskyAltText, buffer);
             }
-            return 'Syndication completed';
+            return 'Bluesky syndication completed.';
         }
-        return 'Condition not met, syndication skipped';
+        return 'Condition not met, syndication skipped.';
+    }
+
+    const updateTwitchSchedule = async () => {
+        if (flags.updateTwitchSchedule) {
+            await updateChannelSchedule(events, weekRange);
+            return 'Twitch channel schedule updated.'
+        } else {
+            return 'Condition not met, channel schedule update skipped.'
+        }
     }
 
     let messageResponse;
@@ -107,61 +116,9 @@ export async function execute(interaction) {
 
     const results = await Promise.allSettled([
         syndicateImageToBluesky(),
+        updateTwitchSchedule(),
         messageResponse
     ]);
-
-    // Twitch testing
-    async function createSegmentRequestBody(event, timezone) {
-        let duration = event.end.getTime() - event.start.getTime();
-        duration = Math.floor(duration / 60000);
-        duration = Math.max(30, Math.min(duration, 1380));
-        let category;
-        try {
-            category = await searchTwitchCategories(event.summary);
-        } catch (error) {
-            throw error;
-        }
-
-        const body = {
-            'start_time': event.start.toISOString(),
-            'timezone': timezone,
-            'is_recurring': true,
-            'duration': duration.toString(),
-            'category_id': (category[0] && category[0].id) ? category[0].id : null,
-            'title': event.description,
-        }
-
-        return body;
-    }
-    const twitchSchedule = await getChannelSchedule();
-    const twitchScheduleArr = (twitchSchedule && twitchSchedule.segments) ? filterEventsByWeek(twitchSchedule.segments, weekRange) : [];
-    for (const [_, event] of twitchScheduleArr) {
-        try {
-            // Try to delete the schedule segment
-            await deleteScheduleSegment(event.id);
-        } catch (error) {
-            // If token is expired (401), refresh token and retry
-            if (error.response && error.response.status === 401) {
-                try {
-                    await refreshAccessToken();
-                    await deleteScheduleSegment(event.id);
-                } catch (refreshError) {
-                    throw refreshError;
-                }
-            } else {
-                throw error;
-            }
-        }
-    }
-    for (const key in events) {
-        const event = events[key];
-        const requestBody = await createSegmentRequestBody(event, timezone);
-        try {
-            await createScheduleSegment(requestBody);
-        } catch (error) {
-            throw error;
-        }
-    }
 
     // Storing message ID so it can be edited later
     if (!updateOption) {

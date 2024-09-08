@@ -4,6 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 dotenv.config();
+import config from '../config.js';
+const { timezone } = config;
+import { filterEventsByWeek } from './calendarUtils.js'; 
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -78,7 +81,7 @@ export function setupTwitchAuth(app) {
     });
 }
 
-export async function refreshAccessToken() {
+async function refreshAccessToken() {
     try {
         const response = await axios.post(TWITCH_TOKEN_URL, null, {
             params: {
@@ -102,7 +105,20 @@ export async function refreshAccessToken() {
     }
 }
 
-export async function getTwitchOAuthToken() {
+async function twitchApiWrapper(apiCall) {
+    try {
+        return await apiCall();
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            console.log('Access token expired. Refreshing...');
+            await refreshAccessToken();
+            return await apiCall();
+        }
+        throw error;
+    }
+}
+
+async function getTwitchOAuthToken() {
     try {
         const response = await axios.post(TWITCH_TOKEN_URL, null, {
             params: {
@@ -119,7 +135,7 @@ export async function getTwitchOAuthToken() {
     }
 }
 
-export async function getTwitchBroadcasterId() {
+async function getTwitchBroadcasterId() {
     try {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/users', {
@@ -143,7 +159,7 @@ export async function getTwitchBroadcasterId() {
     }
 }
 
-export async function searchTwitchCategories(name) {
+async function searchTwitchCategories(name) {
     try {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/search/categories', {
@@ -166,7 +182,7 @@ export async function searchTwitchCategories(name) {
     }
 }
 
-export async function getChannelSchedule() {
+async function getChannelSchedule() {
     try {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/schedule', {
@@ -190,8 +206,8 @@ export async function getChannelSchedule() {
     }
 }
 
-export async function createScheduleSegment(segmentData) {
-    try {
+async function createScheduleSegment(segmentData) {
+    return twitchApiWrapper(async () => {
         const response = await axios.post('https://api.twitch.tv/helix/schedule/segment', segmentData, {
             headers: {
                 'Client-Id': process.env.TWITCH_CLIENT_ID,
@@ -204,14 +220,11 @@ export async function createScheduleSegment(segmentData) {
         });
 
         return response.data;
-    } catch (error) {
-        console.error('Error creating schedule segment:', error);
-        throw error;
-    }
+    });
 }
 
-export async function deleteScheduleSegment(streamId) {
-    try {
+async function deleteScheduleSegment(streamId) {
+    return twitchApiWrapper(async () => {
         const response = await axios.delete('https://api.twitch.tv/helix/schedule/segment', {
             headers: {
                 'Client-Id': process.env.TWITCH_CLIENT_ID,
@@ -224,8 +237,43 @@ export async function deleteScheduleSegment(streamId) {
         });
 
         return response.data;
+    });
+}
+
+async function createSegmentRequestBody(event) {
+    let duration = event.end.getTime() - event.start.getTime();
+    duration = Math.floor(duration / 60000);
+    duration = Math.max(30, Math.min(duration, 1380));
+    let category;
+    try {
+        category = await searchTwitchCategories(event.summary);
     } catch (error) {
-        console.error('Error deleting schedule segment:', error);
         throw error;
+    }
+
+    const body = {
+        'start_time': event.start.toISOString(),
+        'timezone': timezone,
+        'is_recurring': true,
+        'duration': duration.toString(),
+        'category_id': (category[0] && category[0].id) ? category[0].id : null,
+        'title': event.description,
+    }
+
+    return body;
+}
+
+export async function updateChannelSchedule(events, weekRange) {
+    const twitchSchedule = await getChannelSchedule();
+    const twitchScheduleArr = (twitchSchedule && twitchSchedule.segments) ? filterEventsByWeek(twitchSchedule.segments, weekRange) : [];
+    
+    for (const [_, event] of twitchScheduleArr) {
+        await deleteScheduleSegment(event.id);
+    }
+    
+    for (const key in events) {
+        const event = events[key];
+        const requestBody = await createSegmentRequestBody(event, timezone);
+        await createScheduleSegment(requestBody);
     }
 }
