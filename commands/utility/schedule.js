@@ -14,10 +14,22 @@ export const data = new SlashCommandBuilder()
             .setDescription('Which week to show the schedule for (this/next/YYYY-MM-DD)')
             .setRequired(false)
             .setAutocomplete(true)
+    )
+    .addBooleanOption(option =>
+        option.setName('syndicate_bluesky')
+            .setDescription('Override config to syndicate to Bluesky')
+            .setRequired(false)
+    )
+    .addBooleanOption(option =>
+        option.setName('update_twitch')
+            .setDescription('Override config to update Twitch schedule')
+            .setRequired(false)
     );
 
 export async function execute(interaction) {
     const weekOption = interaction.options.getString('week') || 'this';
+    const syndicateBlueskyOverride = interaction.options.getBoolean('syndicate_bluesky');
+    const updateTwitchOverride = interaction.options.getBoolean('update_twitch');
 
     let targetDate = new Date();
 
@@ -57,7 +69,7 @@ export async function execute(interaction) {
     const attachment = new AttachmentBuilder(buffer, { name: 'schedule.png' });
 
     const syndicateImageToBluesky = async () => {
-        if (flags.syndicateImageToBluesky) {
+        if (syndicateBlueskyOverride !== null ? syndicateBlueskyOverride : flags.syndicateImageToBluesky) {
             if (config.bluesky.locationFilter) {
                 const filteredEvents = filterEventsByLocation(events, config.bluesky.locationFilter);
                 const bskyBuffer = await generateCanvas(weekRange, filteredEvents);
@@ -67,26 +79,28 @@ export async function execute(interaction) {
             }
             return 'Bluesky syndication completed.';
         }
-        return 'Condition not met, syndication skipped.';
+        return 'Bluesky syndication skipped.';
     }
 
     const updateTwitchSchedule = async () => {
-        if (flags.updateTwitchSchedule) {
+        if (updateTwitchOverride !== null ? updateTwitchOverride : flags.updateTwitchSchedule) {
             await updateChannelSchedule(events, weekRange);
-            return 'Twitch channel schedule updated.'
-        } else {
-            return 'Condition not met, channel schedule update skipped.'
+            return 'Twitch channel schedule updated.';
         }
+        return 'Twitch channel schedule update skipped.';
     }
-
-    const messageResponse = await interaction.editReply({
-        content: replyText,
-        files: [attachment]
-    });
 
     const results = await Promise.allSettled([
         syndicateImageToBluesky(),
         updateTwitchSchedule(),
-        messageResponse
+        interaction.editReply({
+            content: replyText,
+            files: [attachment]
+        })
     ]);
+
+    if (syndicateBlueskyOverride || updateTwitchOverride) {
+        const summaryText = results.slice(0, 2).map(result => result.value).join('\n');
+        await interaction.followUp({ content: summaryText, ephemeral: true });    
+    }
 }
