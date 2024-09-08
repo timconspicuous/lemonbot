@@ -98,6 +98,62 @@ client.on(Events.InteractionCreate, async interaction => {
 // tokens set or they have expired
 //setupTwitchAuth(app);
 
+// Middleware to parse JSON bodies
+app.use(express.json());
+
+// Serve static files from the 'public' directory
+app.use(express.static('public'));
+
+// Read config file
+async function readConfig() {
+    const configPath = path.join(__dirname, 'config.json');
+    const configData = await fs.readFile(configPath, 'utf8');
+    return JSON.parse(configData);
+}
+
+// Write config file
+async function writeConfig(config) {
+    const configPath = path.join(__dirname, 'config.json');
+    await fs.writeFile(configPath, JSON.stringify(config, null, 2));
+}
+
+// GET route to configure.html
+app.get('/', (req, res) => {
+    res.redirect('/configure.html');
+});
+
+// GET route to fetch the current config
+app.get('/api/config', async (req, res) => {
+    try {
+        const config = await readConfig();
+        res.json(config);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to read config' });
+    }
+});
+
+// POST route to update the config
+app.post('/api/config', async (req, res) => {
+    try {
+        const newConfig = req.body;
+        await writeConfig(newConfig);
+        res.json({ message: 'Config updated successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update config' });
+    }
+});
+
+// POST route to reset the config to default
+app.post('/api/config/reset', async (req, res) => {
+    try {
+        const defaultConfig = await readConfig(); // Assuming the file contains the default config
+        await writeConfig(defaultConfig);
+        res.json({ message: 'Config reset to default successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to reset config' });
+    }
+});
+
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);
     console.log(`Please visit http://localhost:${port}/login to authenticate with Twitch`);

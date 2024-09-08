@@ -1,0 +1,150 @@
+{
+    "current": {
+        "timezone": "Europe/Brussels",
+        "flags": {
+            "syndicateImageToBluesky": false,
+            "updateTwitchSchedule": false,
+            "syndicateImageToBlueskyOnUpdate": false,
+            "updateTwitchScheduleOnUpdate": false
+        },
+        "canvas": {
+            "font": "Lazydog",
+            "fontcolor": "#ffffff",
+            "assets": {
+                "twitchicon": "twitch_icon.png",
+                "discordicon": "discord_icon.png",
+                "overlay": "overlay.png"
+            },
+            "title": {
+                "string": "Stream Schedule",
+                "size": "60px",
+                "posX": 400,
+                "posY": 100
+            },
+            "weekrange": {
+                "size": "40px",
+                "posX": 400,
+                "posY": 165
+            },
+            "weekdays": {
+                "string": [
+                    "MON",
+                    "TUE",
+                    "WED",
+                    "THU",
+                    "FRI"
+                ],
+                "size": "35px",
+                "posX": 175,
+                "posY": 275
+            },
+            "entries": {
+                "size": "35px",
+                "posX": 400,
+                "posY": 275
+            },
+            "time": {
+                "size": "25px",
+                "posX": 625,
+                "posY": 275
+            },
+            "entrycolors": {
+                "none": "#f1e1b2",
+                "twitch": "#eebd37",
+                "discord": "#f3af52"
+            },
+            "size": {
+                "width": 800,
+                "height": 800
+            },
+            "container": {
+                "posX": 126,
+                "posY": 224,
+                "width": 548,
+                "height": 102
+            },
+            "spacing": 112.5
+        },
+        "bluesky": {
+            "text": "",
+            "alttext": "Weekly schedule:",
+            "locationFilter": [
+                "Twitch"
+            ]
+        }
+    },
+    "default": {
+        "timezone": "Europe/Brussels",
+        "flags": {
+            "syndicateImageToBluesky": false,
+            "updateTwitchSchedule": false,
+            "syndicateImageToBlueskyOnUpdate": false,
+            "updateTwitchScheduleOnUpdate": false
+        },
+        "canvas": {
+            "font": "Lazydog",
+            "fontcolor": "#ffffff",
+            "assets": {
+                "twitchicon": "twitch_icon.png",
+                "discordicon": "discord_icon.png",
+                "overlay": "overlay.png"
+            },
+            "title": {
+                "string": "Stream Schedule",
+                "size": "60px",
+                "posX": 400,
+                "posY": 100
+            },
+            "weekrange": {
+                "size": "40px",
+                "posX": 400,
+                "posY": 165
+            },
+            "weekdays": {
+                "string": [
+                    "MON",
+                    "TUE",
+                    "WED",
+                    "THU",
+                    "FRI"
+                ],
+                "size": "35px",
+                "posX": 175,
+                "posY": 275
+            },
+            "entries": {
+                "size": "35px",
+                "posX": 400,
+                "posY": 275
+            },
+            "time": {
+                "size": "25px",
+                "posX": 625,
+                "posY": 275
+            },
+            "entrycolors": {
+                "none": "#f1e1b2",
+                "twitch": "#eebd37",
+                "discord": "#f3af52"
+            },
+            "size": {
+                "width": 800,
+                "height": 800
+            },
+            "container": {
+                "posX": 126,
+                "posY": 224,
+                "width": 548,
+                "height": 102
+            },
+            "spacing": 112.5
+        },
+        "bluesky": {
+            "text": "",
+            "alttext": "Weekly schedule:",
+            "locationFilter": [
+                "Twitch"
+            ]
+        }
+    }
+}
