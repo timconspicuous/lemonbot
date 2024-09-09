@@ -4,360 +4,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stream Schedule Config Editor</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            color: #333;
-        }
-
-        .section {
-            border: 1px solid #ddd;
-            margin-bottom: 10px;
-            border-radius: 4px;
-        }
-
-        .section-header {
-            background-color: #f8f8f8;
-            padding: 10px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .section-content {
-            padding: 10px;
-            display: none;
-        }
-
-        label {
-            display: block;
-            margin: 10px 0 5px;
-            position: relative;
-        }
-
-        input[type="text"],
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-
-        input[type="number"] {
-            -moz-appearance: textfield;
-        }
-
-        input[type="number"]::-webkit-outer-spin-button,
-        input[type="number"]::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .number-input-container {
-            position: relative;
-            width: 100%;
-        }
-
-        .number-input-arrows {
-            position: absolute;
-            right: 5px;
-            top: 0;
-            bottom: 0;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .number-input-arrow {
-            cursor: pointer;
-            user-select: none;
-            font-size: 12px;
-        }
-
-        button {
-            background-color: #5cb85c;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #4cae4c;
-        }
-
-        .reset-btn {
-            background-color: #f0ad4e;
-        }
-
-        .reset-btn:hover {
-            background-color: #ec971f;
-        }
-
-        .info-icon {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            background-color: #007bff;
-            color: white;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 16px;
-            font-size: 12px;
-            cursor: help;
-            margin-left: 5px;
-        }
-
-        .tooltip {
-            visibility: hidden;
-            width: 200px;
-            background-color: #555;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .info-icon:hover .tooltip {
-            visibility: visible;
-            opacity: 1;
-        }
-    </style>
+    <title>Stream Schedule Configuration</title>
+    <link rel="stylesheet" href="configure.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment-with-locales.min.js"></script>
 </head>
 
 <body>
     <div class="container">
-        <h1>Stream Schedule Config Editor</h1>
-        <form id="configForm">
-            <div class="section">
-                <div class="section-header">General Settings</div>
-                <div class="section-content">
-                    <label for="timezone">Timezone:
-                        <span class="info-icon">ℹ
-                            <span class="tooltip">The timezone for the schedule. Format is 'Europe/Brussels'</span>
-                        </span>
+        <h1>Stream Schedule Configuration</h1>
+
+        <section>
+            <h2>General Settings</h2>
+            <div class="section-content">
+                <div class="input-group">
+                    <label for="timezone">
+                        Timezone:
                     </label>
-                    <input type="text" id="timezone" name="timezone">
+                    <select id="timezone" name="timezone"></select>
+                    <button class="reset-field" data-field="timezone">⟳</button>
                 </div>
             </div>
+        </section>
 
-            <div class="section">
-                <div class="section-header">Flags</div>
-                <div class="section-content">
-                    <label>
-                        <input type="checkbox" id="syndicateImageToBluesky" name="flags.syndicateImageToBluesky">
-                        Syndicate Image To Bluesky
-                        <span class="info-icon">ℹ
-                            <span class="tooltip">Whether the schedule image is posted to Bluesky. Credentials must be
-                                set in .env for this to work.</span>
-                        </span>
-                    </label>
-                    <label>
-                        <input type="checkbox" id="updateTwitchSchedule" name="flags.updateTwitchSchedule">
-                        Update Twitch Schedule
-                        <span class="info-icon">ℹ
-                            <span class="tooltip">Whether the schedule is synched with Twitch schedule. Credentials must
-                                be set in .env for this to work.</span>
-                        </span>
-                    </label>
+        <section>
+            <h2>Flags</h2>
+            <div class="section-content">
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="syndicateImageToBluesky" name="syndicateImageToBluesky">
+                            Syndicate Image To Bluesky
+                            <span class="info-icon"
+                                title="Whether the schedule image is posted to Bluesky. Credentials must be set in .env for this to work.">ℹ</span>
+                        </label>
+                        <button class="reset-field" data-field="syndicateImageToBluesky">⟳</button>
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="updateTwitchSchedule" name="updateTwitchSchedule">
+                            Sync Twitch Schedule
+                            <span class="info-icon"
+                                title="Whether the schedule is synced with Twitch schedule. Credentials must be set in .env for this to work.">ℹ</span>
+                        </label>
+                        <button class="reset-field" data-field="updateTwitchSchedule">⟳</button>
+                    </div>
+                </div>
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="syndicateImageToBlueskyOnUpdate"
+                                name="syndicateImageToBlueskyOnUpdate">
+                            Syndicate Image To Bluesky On Update
+                            <span class="info-icon"
+                                title="Whether the schedule image is posted to Bluesky on running the 'update' command.">ℹ</span>
+                        </label>
+                        <button class="reset-field" data-field="syndicateImageToBlueskyOnUpdate">⟳</button>
+                    </div>
+                    <div class="input-group">
+                        <label>
+                            <input type="checkbox" id="updateTwitchScheduleOnUpdate"
+                                name="updateTwitchScheduleOnUpdate">
+                            Sync Twitch Schedule On Update
+                            <span class="info-icon"
+                                title="Whether the schedule is synced with Twitch schedule on running the 'update' command.">ℹ</span>
+                        </label>
+                        <button class="reset-field" data-field="updateTwitchScheduleOnUpdate">⟳</button>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <div class="section">
-                <div class="section-header">Canvas</div>
-                <div class="section-content">
-                    <label for="font">Font:
-                        <span class="info-icon">ℹ
-                            <span class="tooltip">The font to use for the schedule. Place .ttf file in
-                                /assets/fonts/</span>
-                        </span>
-                    </label>
-                    <input type="text" id="font" name="canvas.font">
+        <section>
+            <h2>Canvas</h2>
+            <div class="section-content">
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label for="font">
+                            Font:
+                            <span class="info-icon"
+                                title="The font to use for the schedule. Place .ttf file in /assets/fonts/">ℹ</span>
+                        </label>
+                        <input type="text" id="font" name="font">
+                        <button class="reset-field" data-field="font">⟳</button>
+                    </div>
 
-                    <label for="fontcolor">Font Color:</label>
-                    <input type="text" id="fontcolor" name="canvas.fontcolor">
+                    <div class="input-group">
+                        <label for="fontColor">Font Color:</label>
+                        <input type="color" id="fontColor" name="fontColor">
+                        <button class="reset-field" data-field="fontColor">⟳</button>
+                    </div>
+                </div>
 
-                    <h3>Assets</h3>
-                    <label for="twitchicon">Twitch Icon:</label>
-                    <input type="text" id="twitchicon" name="canvas.assets.twitchicon">
+                <h3>Assets</h3>
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label for="twitchIcon">Twitch Icon:</label>
+                        <input type="text" id="twitchIcon" name="twitchIcon">
+                        <button class="reset-field" data-field="twitchIcon">⟳</button>
+                    </div>
 
-                    <label for="discordicon">Discord Icon:</label>
-                    <input type="text" id="discordicon" name="canvas.assets.discordicon">
+                    <div class="input-group">
+                        <label for="discordIcon">Discord Icon:</label>
+                        <input type="text" id="discordIcon" name="discordIcon">
+                        <button class="reset-field" data-field="discordIcon">⟳</button>
+                    </div>
 
-                    <label for="overlay">Overlay:</label>
-                    <input type="text" id="overlay" name="canvas.assets.overlay">
+                    <div class="input-group">
+                        <label for="overlay">Overlay:</label>
+                        <input type="text" id="overlay" name="overlay">
+                        <button class="reset-field" data-field="overlay">⟳</button>
+                    </div>
+                </div>
 
-                    <h3>Title</h3>
+                <h3>Title</h3>
+                <div class="input-group">
                     <label for="titleString">Title String:</label>
-                    <input type="text" id="titleString" name="canvas.title.string">
+                    <input type="text" id="titleString" name="titleString">
+                    <button class="reset-field" data-field="titleString">⟳</button>
+                </div>
 
-                    <label for="titleSize">Title Size:</label>
-                    <input type="text" id="titleSize" name="canvas.title.size">
-
-                    <label for="titlePosX">Title Position X:</label>
-                    <div class="number-input-container">
-                        <input type="number" id="titlePosX" name="canvas.title.posX">
-                        <div class="number-input-arrows">
-                            <div class="number-input-arrow" onclick="changeNumberInput('titlePosX', 1)">▲</div>
-                            <div class="number-input-arrow" onclick="changeNumberInput('titlePosX', -1)">▼</div>
-                        </div>
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label for="titleSize">Font Size:</label>
+                        <input type="text" id="titleSize" name="titleSize">
+                        <button class="reset-field" data-field="titleSize">⟳</button>
                     </div>
 
-                    <label for="titlePosY">Title Position Y:</label>
-                    <div class="number-input-container">
-                        <input type="number" id="titlePosY" name="canvas.title.posY">
-                        <div class="number-input-arrows">
-                            <div class="number-input-arrow" onclick="changeNumberInput('titlePosY', 1)">▲</div>
-                            <div class="number-input-arrow" onclick="changeNumberInput('titlePosY', -1)">▼</div>
-                        </div>
+                    <div class="input-group">
+                        <label for="titlePosX">Position X:</label>
+                        <input type="number" id="titlePosX" name="titlePosX">
+                        <button class="reset-field" data-field="titlePosX">⟳</button>
                     </div>
 
-                    <!-- Add more fields for other config options -->
+                    <div class="input-group">
+                        <label for="titlePosY">Position Y:</label>
+                        <input type="number" id="titlePosY" name="titlePosY">
+                        <button class="reset-field" data-field="titlePosY">⟳</button>
+                    </div>
+                </div>
+
+                <h3>Week Range</h3>
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label for="weekrangeSize">Font Size:</label>
+                        <input type="text" id="weekrangeSize" name="weekrangeSize">
+                        <button class="reset-field" data-field="weekrangeSize">⟳</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="weekrangePosX">Position X:</label>
+                        <input type="number" id="weekrangePosX" name="weekrangePosX">
+                        <button class="reset-field" data-field="weekrangePosX">⟳</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="weekrangePosY">Position Y:</label>
+                        <input type="number" id="weekrangePosY" name="weekrangePosY">
+                        <button class="reset-field" data-field="weekrangePosY">⟳</button>
+                    </div>
+                </div>
+
+                <h3>Week Days</h3>
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label for="weekdaysSize">Font Size:</label>
+                        <input type="text" id="weekdaysSize" name="weekdaysSize">
+                        <button class="reset-field" data-field="weekdaysSize">⟳</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="weekdaysPosX">Position X:</label>
+                        <input type="number" id="weekdaysPosX" name="weekdaysPosX">
+                        <button class="reset-field" data-field="weekdaysPosX">⟳</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="weekdaysPosY">Position Y:</label>
+                        <input type="number" id="weekdaysPosY" name="weekdaysPosY">
+                        <button class="reset-field" data-field="weekdaysPosY">⟳</button>
+                    </div>
+                </div>
+
+                <h3>Entries</h3>
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label for="entriesSize">Font Size:</label>
+                        <input type="text" id="entriesSize" name="entriesSize">
+                        <button class="reset-field" data-field="entriesSize">⟳</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="entriesPosX">Position X:</label>
+                        <input type="number" id="entriesPosX" name="entriesPosX">
+                        <button class="reset-field" data-field="entriesPosX">⟳</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="entriesPosY">Position Y:</label>
+                        <input type="number" id="entriesPosY" name="entriesPosY">
+                        <button class="reset-field" data-field="entriesPosY">⟳</button>
+                    </div>
+                </div>
+
+                <h3>Time Of Day</h3>
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label for="timeSize">Font Size:</label>
+                        <input type="text" id="timeSize" name="timeSize">
+                        <button class="reset-field" data-field="timeSize">⟳</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="timePosX">Position X:</label>
+                        <input type="number" id="timePosX" name="timePosX">
+                        <button class="reset-field" data-field="timePosX">⟳</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="timePosY">Position Y:</label>
+                        <input type="number" id="timePosY" name="timePosY">
+                        <button class="reset-field" data-field="timePosY">⟳</button>
+                    </div>
+                </div>
+
+                <h3>Entry Colors</h3>
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label for="noneColor">None Color:</label>
+                        <input type="color" id="noneColor" name="noneColor">
+                        <button class="reset-field" data-field="noneColor">⟳</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="twitchColor">Twitch Color:</label>
+                        <input type="color" id="twitchColor" name="twitchColor">
+                        <button class="reset-field" data-field="twitchColor">⟳</button>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="discordColor">Discord Color:</label>
+                        <input type="color" id="discordColor" name="discordColor">
+                        <button class="reset-field" data-field="discordColor">⟳</button>
+                    </div>
                 </div>
             </div>
+        </section>
 
-            <button type="submit">Save Configuration</button>
-        </form>
-        <button id="resetBtn" class="reset-btn">Reset to Default</button>
+        <button id="saveConfig">Save Configuration</button>
+        <button id="resetConfig">Reset All to Default</button>
     </div>
 
-    <script>
-        const form = document.getElementById('configForm');
-        const resetBtn = document.getElementById('resetBtn');
-        let defaultConfig = {};
-
-        // Function to set form values
-        function setFormValues(config) {
-            document.getElementById('timezone').value = config.timezone;
-            document.getElementById('syndicateImageToBluesky').checked = config.flags.syndicateImageToBluesky;
-            document.getElementById('updateTwitchSchedule').checked = config.flags.updateTwitchSchedule;
-            document.getElementById('font').value = config.canvas.font;
-            document.getElementById('fontcolor').value = config.canvas.fontcolor;
-            document.getElementById('twitchicon').value = config.canvas.assets.twitchicon;
-            document.getElementById('discordicon').value = config.canvas.assets.discordicon;
-            document.getElementById('overlay').value = config.canvas.assets.overlay;
-            document.getElementById('titleString').value = config.canvas.title.string;
-            document.getElementById('titleSize').value = config.canvas.title.size;
-            document.getElementById('titlePosX').value = config.canvas.title.posX;
-            document.getElementById('titlePosY').value = config.canvas.title.posY;
-            // Set values for other fields...
-        }
-
-        // Fetch current config and populate form
-        fetch('/api/config')
-            .then(response => response.json())
-            .then(config => {
-                defaultConfig = config;
-                setFormValues(config);
-            })
-            .catch(error => console.error('Error fetching config:', error));
-
-        // Handle form submission
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const formData = new FormData(form);
-            const config = {
-                timezone: formData.get('timezone'),
-                flags: {
-                    syndicateImageToBluesky: formData.get('flags.syndicateImageToBluesky') === 'on',
-                    updateTwitchSchedule: formData.get('flags.updateTwitchSchedule') === 'on'
-                },
-                canvas: {
-                    font: formData.get('canvas.font'),
-                    fontcolor: formData.get('canvas.fontcolor'),
-                    assets: {
-                        twitchicon: formData.get('canvas.assets.twitchicon'),
-                        discordicon: formData.get('canvas.assets.discordicon'),
-                        overlay: formData.get('canvas.assets.overlay')
-                    },
-                    title: {
-                        string: formData.get('canvas.title.string'),
-                        size: formData.get('canvas.title.size'),
-                        posX: parseInt(formData.get('canvas.title.posX')),
-                        posY: parseInt(formData.get('canvas.title.posY'))
-                    },
-                    // Add other canvas properties...
-                },
-                // Add other top-level properties...
-            };
-
-            fetch('/api/config', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(config),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Config updated:', data);
-                    alert('Configuration updated successfully!');
-                })
-                .catch((error) => {
-                    console.error('Error updating config:', error);
-                    alert('Failed to update configuration. Please try again.');
-                });
-        });
-
-        // Handle reset button
-        resetBtn.addEventListener('click', () => {
-            if (confirm('Are you sure you want to reset to default configuration?')) {
-                fetch('/api/config/reset', { method: 'POST' })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log('Config reset:', data);
-                        alert('Configuration reset to default!');
-                        setFormValues(defaultConfig);
-                    })
-                    .catch(error => {
-                        console.error('Error resetting config:', error);
-                        alert('Failed to reset configuration. Please try again.');
-                    });
-            }
-        });
-
-        // Function to change number input value
-        function changeNumberInput(id, change) {
-            const input = document.getElementById(id);
-            input.value = parseInt(input.value) + change;
-            input.dispatchEvent(new Event('change'));
-        }
-
-        // Toggle sections
-        document.querySelectorAll('.section-header').forEach(header => {
-            header.addEventListener('click', () => {
-                const content = header.nextElementSibling;
-                content.style.display = content.style.display === 'none' ? 'block' : 'none';
-            });
-        });
-    </script>
+    <script src="configure.js"></script>
 </body>
 
 </html>

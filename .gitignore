@@ -1,5 +1,5 @@
 node_modules
-.node-persist
+config
 .env
 /assets/*
 !/assets/overlay.png

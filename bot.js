@@ -1,5 +1,5 @@
 import { Client, Collection, Events, GatewayIntentBits } from 'discord.js';
-import fs from 'fs';
+import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
@@ -15,36 +15,51 @@ const __dirname = path.dirname(__filename);
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 const token = process.env.TOKEN;
-
 client.commands = new Collection();
-
 const foldersPath = path.join(__dirname, 'commands');
-const commandFolders = fs.readdirSync(foldersPath);
 
-for (const folder of commandFolders) {
-    const commandsPath = path.join(foldersPath, folder);
-    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+const DEFAULT_CONFIG_PATH = path.join(__dirname, 'default-config.json');
+const CURRENT_CONFIG_PATH = path.join(__dirname, 'config', 'current-config.json');
 
-    for (const file of commandFiles) {
-        const filePath = path.join(commandsPath, file);
+async function ensureCurrentConfig() {
+    try {
+        await fs.access(CURRENT_CONFIG_PATH);
+    } catch (error) {
+        // If current-config.json doesn't exist, copy from default-config.json
+        await fs.copyFile(DEFAULT_CONFIG_PATH, CURRENT_CONFIG_PATH);
+    }
+}
 
-        // Dynamically import the command file as an ES6 module
-        import(fileURLToPath(new URL(filePath, `file://${__dirname}/`)))
-            .then(command => {
-                // Set a new item in the Collection with the key as the command name and the value as the exported module
-                if ('data' in command && 'execute' in command) {
-                    client.commands.set(command.data.name, command);
-                } else {
-                    console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+async function loadCommands() {
+    try {
+        const commandFolders = await fs.readdir(foldersPath);
+
+        for (const folder of commandFolders) {
+            const commandsPath = path.join(foldersPath, folder);
+            const commandFiles = (await fs.readdir(commandsPath)).filter(file => file.endsWith('.js'));
+
+            for (const file of commandFiles) {
+                const filePath = path.join(commandsPath, file);
+
+                try {
+                    const command = await import(fileURLToPath(new URL(filePath, `file://${__dirname}/`)));
+                    if ('data' in command && 'execute' in command) {
+                        client.commands.set(command.data.name, command);
+                    } else {
+                        console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+                    }
+                } catch (error) {
+                    console.error(`[ERROR] Failed to load command at ${filePath}:`, error);
                 }
-            })
-            .catch(error => {
-                console.error(`[ERROR] Failed to load command at ${filePath}:`, error);
-            });
+            }
+        }
+    } catch (error) {
+        console.error('Error loading commands:', error);
     }
 }
 
 client.once(Events.ClientReady, readyClient => {
+    loadCommands(); //does this work?
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 });
 
@@ -104,17 +119,24 @@ app.use(express.json());
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
-// Read config file
 async function readConfig() {
-    const configPath = path.join(__dirname, 'config.json');
-    const configData = await fs.readFile(configPath, 'utf8');
+    await ensureCurrentConfig();
+    const configData = await fs.readFile(CURRENT_CONFIG_PATH, 'utf8');
     return JSON.parse(configData);
 }
 
-// Write config file
+async function readDefaultConfig() {
+    const configData = await fs.readFile(DEFAULT_CONFIG_PATH, 'utf8');
+    return JSON.parse(configData);
+}
+
 async function writeConfig(config) {
-    const configPath = path.join(__dirname, 'config.json');
-    await fs.writeFile(configPath, JSON.stringify(config, null, 2));
+    await fs.writeFile(CURRENT_CONFIG_PATH, JSON.stringify(config, null, 2));
+}
+
+async function resetConfig() {
+    await fs.copyFile(DEFAULT_CONFIG_PATH, CURRENT_CONFIG_PATH);
+    return readConfig();
 }
 
 // GET route to configure.html
@@ -122,13 +144,24 @@ app.get('/', (req, res) => {
     res.redirect('/configure.html');
 });
 
-// GET route to fetch the current config
+// GET route to fetch the configs
 app.get('/api/config', async (req, res) => {
     try {
         const config = await readConfig();
         res.json(config);
     } catch (error) {
+        console.error('Failed to read config:', error);
         res.status(500).json({ error: 'Failed to read config' });
+    }
+});
+
+app.get('/api/config/default', async (req, res) => {
+    try {
+        const defaultConfig = await readDefaultConfig();
+        res.json(defaultConfig);
+    } catch (error) {
+        console.error('Failed to read default config:', error);
+        res.status(500).json({ error: 'Failed to read default config' });
     }
 });
 
@@ -139,6 +172,7 @@ app.post('/api/config', async (req, res) => {
         await writeConfig(newConfig);
         res.json({ message: 'Config updated successfully' });
     } catch (error) {
+        console.error('Failed to update config:', error);
         res.status(500).json({ error: 'Failed to update config' });
     }
 });
@@ -146,10 +180,10 @@ app.post('/api/config', async (req, res) => {
 // POST route to reset the config to default
 app.post('/api/config/reset', async (req, res) => {
     try {
-        const defaultConfig = await readConfig(); // Assuming the file contains the default config
-        await writeConfig(defaultConfig);
-        res.json({ message: 'Config reset to default successfully' });
+        const defaultConfig = await resetConfig();
+        res.json({ message: 'Config reset to default successfully', config: defaultConfig });
     } catch (error) {
+        console.error('Failed to reset config:', error);
         res.status(500).json({ error: 'Failed to reset config' });
     }
 });
@@ -159,4 +193,5 @@ app.listen(port, () => {
     console.log(`Please visit http://localhost:${port}/login to authenticate with Twitch`);
 });
 
+await ensureCurrentConfig().catch(console.error);
 client.login(token);
