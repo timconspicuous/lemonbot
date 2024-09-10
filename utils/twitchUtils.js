@@ -4,8 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 dotenv.config();
-import config from '../config.js';
-const { timezone } = config;
+import configManager from './configManager.js';
 import { filterEventsByLocation, filterEventsByWeek } from './calendarUtils.js'; 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -253,7 +252,7 @@ async function createSegmentRequestBody(event) {
 
     const body = {
         'start_time': event.start.toISOString(),
-        'timezone': timezone,
+        'timezone': configManager.get('timezone'),
         'is_recurring': true,
         'duration': duration.toString(),
         'category_id': (category[0] && category[0].id) ? category[0].id : null,
@@ -275,7 +274,7 @@ export async function updateChannelSchedule(events, weekRange) {
     const futureEvents = Object.fromEntries(eventsArr);
     for (const key in futureEvents) {
         const event = futureEvents[key];
-        const requestBody = await createSegmentRequestBody(event, timezone);
+        const requestBody = await createSegmentRequestBody(event, configManager.get('timezone'));
         await createScheduleSegment(requestBody);
     }
 }

@@ -5,6 +5,8 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import dotenv from 'dotenv';
 import { setupTwitchAuth } from './utils/twitchUtils.js';
+import configManager from './utils/configManager.js';
+import configRoutes from './routes/configRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -18,17 +20,17 @@ const token = process.env.TOKEN;
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
 
-const DEFAULT_CONFIG_PATH = path.join(__dirname, 'default-config.json');
-const CURRENT_CONFIG_PATH = path.join(__dirname, 'config', 'current-config.json');
+// Middleware
+app.use(express.json());
+app.use(express.static('public'));
 
-async function ensureCurrentConfig() {
-    try {
-        await fs.access(CURRENT_CONFIG_PATH);
-    } catch (error) {
-        // If current-config.json doesn't exist, copy from default-config.json
-        await fs.copyFile(DEFAULT_CONFIG_PATH, CURRENT_CONFIG_PATH);
-    }
-}
+// Routes
+app.use(configRoutes);
+
+// GET route to configure.html
+app.get('/', (req, res) => {
+  res.redirect('/configure.html');
+});
 
 async function loadCommands() {
     try {
@@ -113,85 +115,17 @@ client.on(Events.InteractionCreate, async interaction => {
 // tokens set or they have expired
 //setupTwitchAuth(app);
 
-// Middleware to parse JSON bodies
-app.use(express.json());
-
-// Serve static files from the 'public' directory
-app.use(express.static('public'));
-
-async function readConfig() {
-    await ensureCurrentConfig();
-    const configData = await fs.readFile(CURRENT_CONFIG_PATH, 'utf8');
-    return JSON.parse(configData);
+async function main() {
+    try {
+        await configManager.init();
+        app.listen(port, () => {
+            console.log(`App listening at http://localhost:${port}`);
+            console.log(`Please visit http://localhost:${port}/login to authenticate with Twitch`);
+        });
+        await client.login(token);
+    } catch (error) {
+        console.error('Failed to initialize:', error);
+    }
 }
 
-async function readDefaultConfig() {
-    const configData = await fs.readFile(DEFAULT_CONFIG_PATH, 'utf8');
-    return JSON.parse(configData);
-}
-
-async function writeConfig(config) {
-    await fs.writeFile(CURRENT_CONFIG_PATH, JSON.stringify(config, null, 2));
-}
-
-async function resetConfig() {
-    await fs.copyFile(DEFAULT_CONFIG_PATH, CURRENT_CONFIG_PATH);
-    return readConfig();
-}
-
-// GET route to configure.html
-app.get('/', (req, res) => {
-    res.redirect('/configure.html');
-});
-
-// GET route to fetch the configs
-app.get('/api/config', async (req, res) => {
-    try {
-        const config = await readConfig();
-        res.json(config);
-    } catch (error) {
-        console.error('Failed to read config:', error);
-        res.status(500).json({ error: 'Failed to read config' });
-    }
-});
-
-app.get('/api/config/default', async (req, res) => {
-    try {
-        const defaultConfig = await readDefaultConfig();
-        res.json(defaultConfig);
-    } catch (error) {
-        console.error('Failed to read default config:', error);
-        res.status(500).json({ error: 'Failed to read default config' });
-    }
-});
-
-// POST route to update the config
-app.post('/api/config', async (req, res) => {
-    try {
-        const newConfig = req.body;
-        await writeConfig(newConfig);
-        res.json({ message: 'Config updated successfully' });
-    } catch (error) {
-        console.error('Failed to update config:', error);
-        res.status(500).json({ error: 'Failed to update config' });
-    }
-});
-
-// POST route to reset the config to default
-app.post('/api/config/reset', async (req, res) => {
-    try {
-        const defaultConfig = await resetConfig();
-        res.json({ message: 'Config reset to default successfully', config: defaultConfig });
-    } catch (error) {
-        console.error('Failed to reset config:', error);
-        res.status(500).json({ error: 'Failed to reset config' });
-    }
-});
-
-app.listen(port, () => {
-    console.log(`App listening at http://localhost:${port}`);
-    console.log(`Please visit http://localhost:${port}/login to authenticate with Twitch`);
-});
-
-await ensureCurrentConfig().catch(console.error);
-client.login(token);
+main();

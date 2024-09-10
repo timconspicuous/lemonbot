@@ -1,7 +1,7 @@
 import { createCanvas, loadImage, registerFont } from 'canvas';
 import { promises as fs } from 'fs';
 import path from 'path';
-import config from '../config.js';
+import configManager from './configManager.js';
 const fontsDirectory = 'assets/fonts';
 
 await registerAllFonts(fontsDirectory);
@@ -58,7 +58,7 @@ export async function generateCanvas(weekRange, events) {
         assets,
         title,
         weekrange
-    } = config.canvas;
+    } = configManager.getAll().canvas;
 
     const weekday = weekdays.string;
     const icons = new Array(weekday.length);

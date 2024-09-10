@@ -3,8 +3,7 @@ import { fetchCalendar, filterEventsByLocation } from '../../utils/calendarUtils
 import { generateCanvas } from '../../utils/canvasUtils.js';
 import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
 import { updateChannelSchedule } from '../../utils/twitchUtils.js';
-import config from '../../config.js';
-const { flags } = config;
+import configManager from '../../utils/configManager.js';
 
 export const data = new ContextMenuCommandBuilder()
     .setName('Update Schedule')
@@ -36,7 +35,7 @@ export async function execute(interaction) {
             const startDate = new Date(event.start)
             const unixTimestamp = Math.floor(startDate.getTime() / 1000);
             replyText += `\n➳ <t:${unixTimestamp}:F> ${event.summary}`;
-            if (config.bluesky.locationFilter && !config.bluesky.locationFilter.includes(event.location)) {
+            if (configManager.get('bluesky.locationFilter') && !configManager.get('bluesky.locationFilter').includes(event.location)) {
                 continue;
             }
             blueskyAltText += `\n${startDate.toLocaleString()} ${event.summary}`;
@@ -49,8 +48,8 @@ export async function execute(interaction) {
     const attachment = new AttachmentBuilder(buffer, { name: 'schedule.png' });
 
     const syndicateImageToBluesky = async () => {
-        if (flags.syndicateImageToBlueskyOnUpdate) {
-            if (config.bluesky.locationFilter) {
+        if (configManager.get('syndicateImageToBlueskyOnUpdate')) {
+            if (configManager.get('bluesky.locationFilter')) {
                 const filteredEvents = filterEventsByLocation(events, config.bluesky.locationFilter);
                 const bskyBuffer = await generateCanvas(weekRange, filteredEvents);
                 await syndicateToBluesky(blueskyAltText, bskyBuffer);
@@ -63,7 +62,7 @@ export async function execute(interaction) {
     }
 
     const updateTwitchSchedule = async () => {
-        if (flags.updateTwitchScheduleOnUpdate) {
+        if (configManager.get('updateTwitchScheduleOnUpdate')) {
             await updateChannelSchedule(events, weekRange);
             return { action: 'Twitch', status: 'completed' };
         }

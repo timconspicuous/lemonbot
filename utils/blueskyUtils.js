@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import config from '../config.js';
+import configManager from './configManager.js';
 import * as atproto from '@atproto/api';
 const { BskyAgent, RichText } = atproto;
 
@@ -14,15 +14,15 @@ export async function syndicateToBluesky(altText, buffer) {
         password: process.env.BLUESKY_PASSWORD
     });
 
-    const text = config.bluesky.text;
-    altText = config.bluesky.alttext + altText;
+    const text = configManager.get('bluesky.text');
+    altText = configManager.get('bluesky.alttext') + altText;
     altText = altText.trimStart();
     if (altText.length > 1000) {
         altText = altText.slice(0, 1000 - 3) + '...';
     }
 
     const uint8arr = new Uint8Array(buffer);
-    const { width, height } = config.canvas.size;
+    const { width, height } = configManager.get('canvas.size');
 
     const rt = new RichText({ text: text });
     await rt.detectFacets(agent);

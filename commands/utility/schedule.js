@@ -3,8 +3,7 @@ import { fetchCalendar, filterEventsByLocation } from '../../utils/calendarUtils
 import { generateCanvas } from '../../utils/canvasUtils.js';
 import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
 import { updateChannelSchedule } from '../../utils/twitchUtils.js';
-import config from '../../config.js';
-const { flags } = config;
+import configManager from '../../utils/configManager.js';
 
 export const data = new SlashCommandBuilder()
     .setName('schedule')
@@ -56,7 +55,7 @@ export async function execute(interaction) {
             const startDate = new Date(event.start)
             const unixTimestamp = Math.floor(startDate.getTime() / 1000);
             replyText += `\n➳ <t:${unixTimestamp}:F> ${event.summary}`;
-            if (config.bluesky.locationFilter && !config.bluesky.locationFilter.includes(event.location)) {
+            if (configManager.get('bluesky.locationFilter') && !configManager.get('bluesky.locationFilter').includes(event.location)) {
                 continue;
             }
             blueskyAltText += `\n${startDate.toLocaleString()} ${event.summary}`;
@@ -69,9 +68,9 @@ export async function execute(interaction) {
     const attachment = new AttachmentBuilder(buffer, { name: 'schedule.png' });
 
     const syndicateImageToBluesky = async () => {
-        if (syndicateBlueskyOverride !== null ? syndicateBlueskyOverride : flags.syndicateImageToBluesky) {
-            if (config.bluesky.locationFilter) {
-                const filteredEvents = filterEventsByLocation(events, config.bluesky.locationFilter);
+        if (syndicateBlueskyOverride !== null ? syndicateBlueskyOverride : configManager.get('syndicateImageToBluesky')) {
+            if (configManager.get('bluesky.locationFilter')) {
+                const filteredEvents = filterEventsByLocation(events, configManager.get('bluesky.locationFilter'));
                 const bskyBuffer = await generateCanvas(weekRange, filteredEvents);
                 await syndicateToBluesky(blueskyAltText, bskyBuffer);
             } else {
@@ -83,7 +82,7 @@ export async function execute(interaction) {
     }
 
     const updateTwitchSchedule = async () => {
-        if (updateTwitchOverride !== null ? updateTwitchOverride : flags.updateTwitchSchedule) {
+        if (updateTwitchOverride !== null ? updateTwitchOverride : configManager.get('updateTwitchSchedule')) {
             await updateChannelSchedule(events, weekRange);
             return { action: 'Twitch', status: 'completed' };
         }

@@ -12,15 +12,15 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', (event) => resetField(event.target.dataset.field));
     });
 
-    const timeZones = moment.tz.names();
-    const select = document.getElementById('timezone');
+    // const timeZones = moment.tz.names();
+    // const select = document.getElementById('timezone');
 
-    timeZones.forEach(timeZone => {
-        const option = document.createElement('option');
-        option.value = timeZone;
-        option.text = timeZone;
-        select.add(option);
-    });
+    // timeZones.forEach(timeZone => {
+    //     const option = document.createElement('option');
+    //     option.value = timeZone;
+    //     option.text = timeZone;
+    //     select.add(option);
+    // });
 });
 
 function loadConfig() {
@@ -68,11 +68,13 @@ function populateForm(config) {
 }
 
 function saveConfig() {
-    const config = {
-        timezone: document.getElementById('timezone').value,
+    const updatedFields = {
+        //timezone: 'Europe/Brussels',
         flags: {
             syndicateImageToBluesky: document.getElementById('syndicateImageToBluesky').checked,
-            updateTwitchSchedule: document.getElementById('updateTwitchSchedule').checked
+            updateTwitchSchedule: document.getElementById('updateTwitchSchedule').checked,
+            syndicateImageToBlueskyOnUpdate: document.getElementById('syndicateImageToBlueskyOnUpdate').checked,
+            updateTwitchScheduleOnUpdate: document.getElementById('updateTwitchScheduleOnUpdate').checked
         },
         canvas: {
             font: document.getElementById('font').value,
@@ -87,8 +89,58 @@ function saveConfig() {
                 size: document.getElementById('titleSize').value,
                 posX: parseInt(document.getElementById('titlePosX').value),
                 posY: parseInt(document.getElementById('titlePosY').value)
-            }
-        }
+            },
+            weekrange: {
+                size: document.getElementById('weekrangeSize').value,
+                posX: parseInt(document.getElementById('weekrangePosX').value),
+                posY: parseInt(document.getElementById('weekrangePosY').value)
+            },
+            weekdays: {
+                // string: [
+                //     "MON",
+                //     "TUE",
+                //     "WED",
+                //     "THU",
+                //     "FRI",
+                // ],
+                size: document.getElementById('weekdaysSize').value,
+                posX: parseInt(document.getElementById('weekdaysPosX').value),
+                posY: parseInt(document.getElementById('weekdaysPosY').value)
+            },
+            entries: {
+                size: document.getElementById('entriesSize').value,
+                posX: parseInt(document.getElementById('entriesPosX').value),
+                posY: parseInt(document.getElementById('entriesPosY').value)
+            },
+            "time": {
+                size: document.getElementById('timeSize').value,
+                posX: parseInt(document.getElementById('timePosX').value),
+                posY: parseInt(document.getElementById('timePosY').value)
+            },
+            "entrycolors": {
+                none: document.getElementById('noneColor').value,
+                twitch: document.getElementById('twitchColor').value,
+                discord: document.getElementById('discordColor').value,
+            },
+            // "size": {
+            //     "width": 800,
+            //     "height": 800
+            // },
+            // "container": {
+            //     "posX": 126,
+            //     "posY": 224,
+            //     "width": 548,
+            //     "height": 102
+            // },
+            // "spacing": 112.5,
+        },
+        // "bluesky": {
+        //     "text": "",
+        //     "alttext": "Weekly schedule:",
+        //     "locationFilter": [
+        //         "Twitch"
+        //     ]
+        // },
     };
 
     fetch('/api/config', {
@@ -96,7 +148,7 @@ function saveConfig() {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(config),
+        body: JSON.stringify(updatedFields),
     })
         .then(response => {
             if (!response.ok) {
@@ -105,11 +157,13 @@ function saveConfig() {
             return response.json();
         })
         .then(data => {
-            alert('Configuration saved successfully!');
+            alert('Configuration updated successfully!');
+            // Optionally update the form with the returned full config
+            populateForm(data.config);
         })
         .catch((error) => {
             console.error('Error:', error);
-            alert('Failed to save configuration. Please try again.');
+            alert('Failed to update configuration. Please try again.');
         });
 }
 
