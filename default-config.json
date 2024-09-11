@@ -10,14 +10,14 @@
     },
     "title": {
       "string": "Stream Schedule",
-      "size": "60px",
+      "size": "75px",
       "posX": 400,
       "posY": 100
     },
     "weekrange": {
-      "size": "40px",
+      "size": "45px",
       "posX": 400,
-      "posY": 165
+      "posY": 170
     },
     "weekdays": {
       "string": [
@@ -27,18 +27,18 @@
         "THU",
         "FRI"
       ],
-      "size": "35px",
-      "posX": 175,
+      "size": "45px",
+      "posX": 185,
       "posY": 275
     },
     "entries": {
-      "size": "35px",
+      "size": "40px",
       "posX": 400,
       "posY": 275
     },
     "time": {
-      "size": "25px",
-      "posX": 625,
+      "size": "35px",
+      "posX": 620,
       "posY": 275
     },
     "entrycolors": {
