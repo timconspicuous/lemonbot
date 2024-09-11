@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 dotenv.config();
-import configManager from './configManager.js';
+import configManager from '../config/configManager.js';
 import { filterEventsByLocation, filterEventsByWeek } from './calendarUtils.js'; 
 
 const __filename = fileURLToPath(import.meta.url);

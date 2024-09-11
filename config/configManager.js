@@ -9,8 +9,8 @@ const __dirname = path.dirname(__filename);
 class ConfigManager extends EventEmitter {
     constructor() {
         super();
-        this.configPath = path.join(__dirname, '..', 'config', 'current-config.json');
-        this.defaultConfigPath = path.join(__dirname, '..', 'default-config.json');
+        this.configPath = path.join(__dirname, 'current-config.json');
+        this.defaultConfigPath = path.join(__dirname, 'default-config.json');
         this.config = null;
     }
 

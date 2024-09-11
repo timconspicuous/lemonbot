@@ -1,5 +1,5 @@
 node_modules
-config
+config/current-config.json
 .env
 /assets/*
 !/assets/overlay.png

@@ -3,7 +3,7 @@ import { fetchCalendar, filterEventsByLocation } from '../../utils/calendarUtils
 import { generateCanvas } from '../../utils/canvasUtils.js';
 import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
 import { updateChannelSchedule } from '../../utils/twitchUtils.js';
-import configManager from '../../utils/configManager.js';
+import configManager from '../../config/configManager.js';
 
 export const data = new SlashCommandBuilder()
     .setName('schedule')

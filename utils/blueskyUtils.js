@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-import configManager from './configManager.js';
+import configManager from '../config/configManager.js';
 import * as atproto from '@atproto/api';
 const { BskyAgent, RichText } = atproto;
 

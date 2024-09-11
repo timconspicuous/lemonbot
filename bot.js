@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import dotenv from 'dotenv';
 import { setupTwitchAuth } from './utils/twitchUtils.js';
-import configManager from './utils/configManager.js';
+import configManager from './config/configManager.js';
 import configRoutes from './routes/configRoutes.js';
 dotenv.config();
 

@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 import ical from 'ical';
 import dotenv from 'dotenv';
 dotenv.config();
-import configManager from './configManager.js';
+import configManager from '../config/configManager.js';
 
 // Function to get the start and end of the week for a given date
 function getWeekRange(date) {
