@@ -16,6 +16,7 @@ export const data = new SlashCommandBuilder()
     );
 
 export async function execute(interaction) {
+    await interaction.deferReply();
     const weekOption = interaction.options.getString('week') || 'this';
 
     let targetDate = new Date();
@@ -82,13 +83,13 @@ export async function execute(interaction) {
 
     // Send ephemeral follow-up with buttons
     const followUpMessage = await interaction.followUp({
-        content: 'Additional actions:',
+        content: 'Additional actions available: (this message will time out in 10 minutes)',
         components: [row],
         ephemeral: true
     });
 
     // Create a collector for button interactions
-    const collector = followUpMessage.createMessageComponentCollector({ time: 60000 }); // 60 second timeout
+    const collector = followUpMessage.createMessageComponentCollector({ time: 600000 }); // 10 minute timeout
 
     collector.on('collect', async i => {
         if (i.customId === 'syndicate_bluesky') {
@@ -110,15 +111,6 @@ export async function execute(interaction) {
                     blueskyButton,
                     twitchButton.setDisabled(true).setLabel('Twitch Schedule Updated')
                 )]
-            });
-        }
-    });
-
-    collector.on('end', collected => {
-        if (collected.size === 0) {
-            interaction.editReply({
-                content: 'No additional actions were taken.',
-                components: []
             });
         }
     });

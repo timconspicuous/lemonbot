@@ -72,7 +72,6 @@ client.on(Events.InteractionCreate, async interaction => {
 
         try {
             if (interaction.commandName === 'schedule') {
-                await interaction.deferReply();
                 await command.execute(interaction);
             } else {
                 await command.execute(interaction);
