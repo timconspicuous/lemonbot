@@ -274,7 +274,7 @@ export async function updateChannelSchedule(events, weekRange) {
     const futureEvents = Object.fromEntries(eventsArr);
     for (const key in futureEvents) {
         const event = futureEvents[key];
-        const requestBody = await createSegmentRequestBody(event, configManager.get('timezone'));
+        const requestBody = await createSegmentRequestBody(event);
         await createScheduleSegment(requestBody);
     }
 }

@@ -33,8 +33,14 @@ export async function fetchCalendar(date = new Date()) {
         const icsData = await response.text();
         let events = ical.parseICS(icsData);
 
-        const timezoneMatch = icsData.match(/X-WR-TIMEZONE:(.*)/);
-        const timezone = configManager.get('timezone') || timezoneMatch[1];
+        let timezone;
+        if (configManager.get('timezone')) {
+            timezone = configManager.get('timezone');
+        } else {
+            const timezoneMatch = icsData.match(/X-WR-TIMEZONE:(.*)/);
+            timezone = timezoneMatch[1];
+            await configManager.updateConfig({ timezone: timezone });
+        }
 
         // Filter and sort events
         const eventsArray = filterEventsByWeek(events, weekRange);
@@ -42,7 +48,7 @@ export async function fetchCalendar(date = new Date()) {
 
         events = Object.fromEntries(eventsArray);
 
-        return {weekRange, timezone, events};
+        return {weekRange, events};
     } catch (error) {
         throw error;
     }
