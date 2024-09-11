@@ -35,6 +35,9 @@ export async function execute(interaction) {
             const startDate = new Date(event.start)
             const unixTimestamp = Math.floor(startDate.getTime() / 1000);
             replyText += `\n➳ <t:${unixTimestamp}:F> ${event.summary}`;
+            if (configManager.get('addEventDescription')) {
+                replyText += `\n\t${event.description}`;
+            }
             if (configManager.get('bluesky.locationFilter') && !configManager.get('bluesky.locationFilter').includes(event.location)) {
                 continue;
             }
@@ -86,24 +89,46 @@ export async function execute(interaction) {
     collector.on('collect', async i => {
         if (i.customId === 'syndicate_bluesky') {
             await i.deferUpdate();
-            await syndicateToBluesky(blueskyAltText, bskyBuffer);
-            await i.editReply({
-                content: 'Schedule updated and syndicated to Bluesky successfully!',
-                components: [new ActionRowBuilder().addComponents(
-                    blueskyButton.setDisabled(true).setLabel('Syndicated to Bluesky'),
-                    twitchButton
-                )]
-            });
+            try {
+                await syndicateToBluesky(blueskyAltText, bskyBuffer);
+                await i.editReply({
+                    content: 'Syndicated to Bluesky successfully!',
+                    components: [new ActionRowBuilder().addComponents(
+                        blueskyButton.setDisabled(true).setLabel('Syndicated to Bluesky'),
+                        twitchButton
+                    )]
+                });
+            } catch (error) {
+                console.error('Error syndicating to Bluesky:', error);
+                await i.editReply({
+                    content: 'Failed to syndicate to Bluesky. Please try again later.',
+                    components: [new ActionRowBuilder().addComponents(
+                        blueskyButton,
+                        twitchButton.setLabel('Syndicated to Bluesky (Failed)')
+                    )]
+                });
+            }
         } else if (i.customId === 'update_twitch') {
             await i.deferUpdate();
-            await updateChannelSchedule(events, weekRange);
-            await i.editReply({
-                content: 'Schedule updated and Twitch schedule updated successfully!',
-                components: [new ActionRowBuilder().addComponents(
-                    blueskyButton,
-                    twitchButton.setDisabled(true).setLabel('Twitch Schedule Updated')
-                )]
-            });
+            try {
+                await updateChannelSchedule(events, weekRange);
+                await i.editReply({
+                    content: 'Twitch schedule updated successfully!',
+                    components: [new ActionRowBuilder().addComponents(
+                        blueskyButton,
+                        twitchButton.setDisabled(true).setLabel('Twitch Schedule Updated')
+                    )]
+                });
+            } catch (error) {
+                console.error('Error updating Twitch schedule:', error);
+                await i.editReply({
+                    content: 'Failed to update Twitch schedule. Please try again later.',
+                    components: [new ActionRowBuilder().addComponents(
+                        blueskyButton,
+                        twitchButton.setLabel('Update Twitch Schedule (Failed)')
+                    )]
+                });
+            }
         }
     });
 }

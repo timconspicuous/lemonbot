@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 dotenv.config();
 import configManager from '../config/configManager.js';
-import { filterEventsByLocation, filterEventsByWeek } from './calendarUtils.js'; 
+import { filterEventsByLocation, filterEventsByWeek } from './calendarUtils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -239,6 +239,7 @@ async function deleteScheduleSegment(streamId) {
     });
 }
 
+
 async function createSegmentRequestBody(event) {
     let duration = event.end.getTime() - event.start.getTime();
     duration = Math.floor(duration / 60000);
@@ -253,28 +254,35 @@ async function createSegmentRequestBody(event) {
     const body = {
         'start_time': event.start.toISOString(),
         'timezone': configManager.get('timezone'),
-        'is_recurring': true,
+        'is_recurring': configManager.get('twitch.isRecurring'),
         'duration': duration.toString(),
         'category_id': (category[0] && category[0].id) ? category[0].id : null,
-        'title': event.description,
+    }
+    if (configManager.get('twitch.streamTitleFromEvent')) {
+        body.title = event.description;
     }
 
     return body;
 }
 
 export async function updateChannelSchedule(events, weekRange) {
-    const twitchSchedule = await getChannelSchedule();
-    const twitchScheduleArr = (twitchSchedule && twitchSchedule.segments) ? filterEventsByWeek(twitchSchedule.segments, weekRange) : [];
-    
-    for (const [_, event] of twitchScheduleArr) {
-        await deleteScheduleSegment(event.id);
-    }
-    
-    const eventsArr = filterEventsByWeek(events, weekRange, true);
-    const futureEvents = Object.fromEntries(eventsArr);
-    for (const key in futureEvents) {
-        const event = futureEvents[key];
-        const requestBody = await createSegmentRequestBody(event);
-        await createScheduleSegment(requestBody);
+    try {
+        const twitchSchedule = await getChannelSchedule();
+        const twitchScheduleArr = (twitchSchedule && twitchSchedule.segments) ? filterEventsByWeek(twitchSchedule.segments, weekRange) : [];
+
+        for (const [_, event] of twitchScheduleArr) {
+            await deleteScheduleSegment(event.id);
+        }
+
+        const eventsArr = filterEventsByWeek(events, weekRange, true);
+        const futureEvents = Object.fromEntries(eventsArr);
+        for (const key in futureEvents) {
+            const event = futureEvents[key];
+            const requestBody = await createSegmentRequestBody(event);
+            await createScheduleSegment(requestBody);
+        }
+    } catch (error) {
+        console.error('Error updating Twitch schedule:', error);
+        throw error; // Rethrow the error to be caught by the caller
     }
 }

@@ -1,5 +1,6 @@
 {
   "timezone": "",
+  "addEventDescription": false,
   "canvas": {
     "font": "Lazydog",
     "fontcolor": "#ffffff",
@@ -64,5 +65,9 @@
     "locationFilter": [
       "Twitch"
     ]
+  },
+  "twitch": {
+    "isRecurring": true,
+    "streamTitleFromEvent": true
   }
 }
