@@ -1,11 +1,5 @@
 {
   "timezone": "Europe/Brussels",
-  "flags": {
-    "syndicateImageToBluesky": false,
-    "updateTwitchSchedule": false,
-    "syndicateImageToBlueskyOnUpdate": false,
-    "updateTwitchScheduleOnUpdate": false
-  },
   "canvas": {
     "font": "Lazydog",
     "fontcolor": "#ffffff",

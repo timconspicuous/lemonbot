@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, AttachmentBuilder } from 'discord.js';
+import { SlashCommandBuilder, AttachmentBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { fetchCalendar, filterEventsByLocation } from '../../utils/calendarUtils.js';
 import { generateCanvas } from '../../utils/canvasUtils.js';
 import { syndicateToBluesky } from '../../utils/blueskyUtils.js';
@@ -13,22 +13,10 @@ export const data = new SlashCommandBuilder()
             .setDescription('Which week to show the schedule for (this/next/YYYY-MM-DD)')
             .setRequired(false)
             .setAutocomplete(true)
-    )
-    .addBooleanOption(option =>
-        option.setName('syndicate_bluesky')
-            .setDescription('Override config to syndicate to Bluesky')
-            .setRequired(false)
-    )
-    .addBooleanOption(option =>
-        option.setName('update_twitch')
-            .setDescription('Override config to update Twitch schedule')
-            .setRequired(false)
     );
 
 export async function execute(interaction) {
     const weekOption = interaction.options.getString('week') || 'this';
-    const syndicateBlueskyOverride = interaction.options.getBoolean('syndicate_bluesky');
-    const updateTwitchOverride = interaction.options.getBoolean('update_twitch');
 
     let targetDate = new Date();
 
@@ -65,46 +53,73 @@ export async function execute(interaction) {
 
     // Generate image attachment
     const buffer = await generateCanvas(weekRange, events);
+    let bskyBuffer = buffer;
+    if (configManager.get('bluesky.locationFilter')) {
+        const filteredEvents = filterEventsByLocation(events, configManager.get('bluesky.locationFilter'));
+        bskyBuffer = await generateCanvas(weekRange, filteredEvents);
+    }
     const attachment = new AttachmentBuilder(buffer, { name: 'schedule.png' });
 
-    const syndicateImageToBluesky = async () => {
-        if (syndicateBlueskyOverride !== null ? syndicateBlueskyOverride : configManager.get('syndicateImageToBluesky')) {
-            if (configManager.get('bluesky.locationFilter')) {
-                const filteredEvents = filterEventsByLocation(events, configManager.get('bluesky.locationFilter'));
-                const bskyBuffer = await generateCanvas(weekRange, filteredEvents);
-                await syndicateToBluesky(blueskyAltText, bskyBuffer);
-            } else {
-                await syndicateToBluesky(blueskyAltText, buffer);
-            }
-            return { action: 'Bluesky', status: 'completed' };
-        }
-        return { action: 'Bluesky', status: 'skipped' };
-    }
+    // Send the initial reply with the schedule
+    await interaction.editReply({
+        content: replyText,
+        files: [attachment]
+    });
 
-    const updateTwitchSchedule = async () => {
-        if (updateTwitchOverride !== null ? updateTwitchOverride : configManager.get('updateTwitchSchedule')) {
+    // Create buttons for additional actions
+    const blueskyButton = new ButtonBuilder()
+        .setCustomId('syndicate_bluesky')
+        .setLabel('Syndicate to Bluesky')
+        .setStyle(ButtonStyle.Secondary);
+
+    const twitchButton = new ButtonBuilder()
+        .setCustomId('update_twitch')
+        .setLabel('Update Twitch Schedule')
+        .setStyle(ButtonStyle.Secondary);
+
+    const row = new ActionRowBuilder()
+        .addComponents(blueskyButton, twitchButton);
+
+    // Send ephemeral follow-up with buttons
+    const followUpMessage = await interaction.followUp({
+        content: 'Additional actions:',
+        components: [row],
+        ephemeral: true
+    });
+
+    // Create a collector for button interactions
+    const collector = followUpMessage.createMessageComponentCollector({ time: 60000 }); // 60 second timeout
+
+    collector.on('collect', async i => {
+        if (i.customId === 'syndicate_bluesky') {
+            await i.deferUpdate();
+            await syndicateToBluesky(blueskyAltText, bskyBuffer);
+            await i.editReply({
+                content: 'Syndicated to Bluesky successfully!',
+                components: [new ActionRowBuilder().addComponents(
+                    blueskyButton.setDisabled(true).setLabel('Syndicated to Bluesky'),
+                    twitchButton
+                )]
+            });
+        } else if (i.customId === 'update_twitch') {
+            await i.deferUpdate();
             await updateChannelSchedule(events, weekRange);
-            return { action: 'Twitch', status: 'completed' };
+            await i.editReply({
+                content: 'Twitch schedule updated successfully!',
+                components: [new ActionRowBuilder().addComponents(
+                    blueskyButton,
+                    twitchButton.setDisabled(true).setLabel('Twitch Schedule Updated')
+                )]
+            });
         }
-        return { action: 'Twitch', status: 'skipped' };
-    }
+    });
 
-    const results = await Promise.allSettled([
-        syndicateImageToBluesky(),
-        updateTwitchSchedule(),
-        interaction.editReply({
-            content: replyText,
-            files: [attachment]
-        })
-    ]);
-
-    const actionResults = results.slice(0, 2).map(result => result.value);
-    const actionsPerformed = actionResults.filter(result => result.status === 'completed');
-
-    if (actionsPerformed.length > 0) {
-        const summaryText = actionResults
-            .map(result => `${result.action} syndication ${result.status}.`)
-            .join('\n');
-        await interaction.followUp({ content: summaryText, ephemeral: true });
-    }
+    collector.on('end', collected => {
+        if (collected.size === 0) {
+            interaction.editReply({
+                content: 'No additional actions were taken.',
+                components: []
+            });
+        }
+    });
 }

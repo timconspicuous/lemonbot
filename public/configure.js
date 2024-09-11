@@ -39,8 +39,6 @@ function loadConfig() {
 
 function populateForm(config) {
     document.getElementById('timezone').value = config.timezone;
-    document.getElementById('syndicateImageToBluesky').checked = config.flags.syndicateImageToBluesky;
-    document.getElementById('updateTwitchSchedule').checked = config.flags.updateTwitchSchedule;
     document.getElementById('font').value = config.canvas.font;
     document.getElementById('fontColor').value = config.canvas.fontcolor;
     document.getElementById('twitchIcon').value = config.canvas.assets.twitchicon;
@@ -70,12 +68,6 @@ function populateForm(config) {
 function saveConfig() {
     const updatedFields = {
         //timezone: 'Europe/Brussels',
-        flags: {
-            syndicateImageToBluesky: document.getElementById('syndicateImageToBluesky').checked,
-            updateTwitchSchedule: document.getElementById('updateTwitchSchedule').checked,
-            syndicateImageToBlueskyOnUpdate: document.getElementById('syndicateImageToBlueskyOnUpdate').checked,
-            updateTwitchScheduleOnUpdate: document.getElementById('updateTwitchScheduleOnUpdate').checked
-        },
         canvas: {
             font: document.getElementById('font').value,
             fontcolor: document.getElementById('fontColor').value,
