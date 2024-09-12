@@ -266,15 +266,16 @@ async function createSegmentRequestBody(event) {
 }
 
 export async function updateChannelSchedule(events, weekRange) {
+    const filteredEvents = filterEventsByLocation(events, ['Twitch']);
     try {
         const twitchSchedule = await getChannelSchedule();
-        const twitchScheduleArr = (twitchSchedule && twitchSchedule.segments) ? filterEventsByWeek(twitchSchedule.segments, weekRange) : [];
+        const twitchScheduleArr = (twitchSchedule && twitchSchedule.segments) ? filterEventsByWeek(twitchSchedule.segments, weekRange, true) : [];
 
         for (const [_, event] of twitchScheduleArr) {
             await deleteScheduleSegment(event.id);
         }
 
-        const eventsArr = filterEventsByWeek(events, weekRange, true);
+        const eventsArr = filterEventsByWeek(filteredEvents, weekRange, true);
         const futureEvents = Object.fromEntries(eventsArr);
         for (const key in futureEvents) {
             const event = futureEvents[key];
