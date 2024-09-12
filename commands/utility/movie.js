@@ -31,7 +31,7 @@ export async function execute(interaction) {
             { name: 'Plot', value: overview, inline: false },
             { name: 'Links', value: `[IMDb](https://www.imdb.com/title/${imdbId}) | [DoesTheDogDie](https://www.doesthedogdie.com/media/${id})`, inline: false }
         )
-        .setImage(`https://www.doesthedogdie.com/content/200/0/${posterImage}`)
+        .setThumbnail(`https://www.doesthedogdie.com/content/200/0/${posterImage}`)
         .setTimestamp();
 
     await interaction.editReply({ embeds: [embed] });
