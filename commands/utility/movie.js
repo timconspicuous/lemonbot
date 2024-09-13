@@ -18,6 +18,7 @@ export async function execute(interaction) {
         name,
         genre,
         releaseYear,
+        tmdbId,
         imdbId,
         posterImage,
         overview,
@@ -29,7 +30,7 @@ export async function execute(interaction) {
         .addFields(
             { name: 'Info', value: `${genre.charAt(0).toUpperCase() + genre.slice(1)}, ${releaseYear}`, inline: false },
             { name: 'Plot', value: overview, inline: false },
-            { name: 'Links', value: `[IMDb](https://www.imdb.com/title/${imdbId}) | [DoesTheDogDie](https://www.doesthedogdie.com/media/${id})`, inline: false }
+            { name: 'Links', value: `[Letterboxd](https://www.letterboxd.com/tmdb/${tmdbId}) | [IMDb](https://www.imdb.com/title/${imdbId}) | [DoesTheDogDie](https://www.doesthedogdie.com/media/${id})`, inline: false }
         )
         .setThumbnail(`https://www.doesthedogdie.com/content/200/0/${posterImage}`)
         .setTimestamp();
