@@ -35,7 +35,7 @@ export async function execute(interaction) {
             const startDate = new Date(event.start)
             const unixTimestamp = Math.floor(startDate.getTime() / 1000);
             replyText += `\n➳ <t:${unixTimestamp}:F> ${event.summary}`;
-            if (configManager.get('addEventDescription')) {
+            if (configManager.get('addEventDescription') &&  event.description) {
                 replyText += `\n\t${event.description}`;
             }
             if (configManager.get('bluesky.locationFilter') && !configManager.get('bluesky.locationFilter').includes(event.location)) {
