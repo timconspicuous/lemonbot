@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, EmbedBuilder } from 'discord.js';
-import { getMovieInfo } from '../../utils/movieUtils.js';
+import { getDTDDInfo } from '../../utils/movieUtils.js';
 
 export const data = new SlashCommandBuilder()
     .setName('movie')
@@ -13,7 +13,7 @@ export async function execute(interaction) {
     await interaction.deferReply();
     const title = interaction.options.getString('title');
 
-    const data = await getMovieInfo(title);
+    const data = await getDTDDInfo(title);
     const { id,
         name,
         genre,

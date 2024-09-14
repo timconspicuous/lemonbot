@@ -2,7 +2,8 @@ import axios from 'axios';
 import dotenv from 'dotenv';
 dotenv.config();
 
-export async function getMovieInfo(movieTitle) {
+// Does the Dog Die API
+export async function getDTDDInfo(movieTitle) {
     const queryParam = movieTitle.toLowerCase();
     try {
         const response = await axios.get('https://www.doesthedogdie.com/dddsearch', {
