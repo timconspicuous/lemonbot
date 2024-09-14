@@ -4,3 +4,7 @@ config/current-config.json
 /assets/*
 !/assets/overlay.png
 /assets/fonts/*
+# SSH for development
+start-server.sh
+lemonbot
+lemonbot.pub
