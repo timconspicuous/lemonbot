@@ -7,23 +7,23 @@ const fontsDirectory = 'assets/fonts';
 await registerAllFonts(fontsDirectory);
 
 async function registerAllFonts(directory) {
-  try {
-    // Read all files in the directory
-    const files = await fs.readdir(directory);
+    try {
+        // Read all files in the directory
+        const files = await fs.readdir(directory);
 
-    files.forEach(file => {
-      // Only process .ttf files
-      if (path.extname(file).toLowerCase() === '.ttf') {
-        const fontPath = path.join(directory, file);
-        const fontFamily = path.basename(file, '.ttf'); // Use the file name as family name
-        registerFont(fontPath, { family: fontFamily });
+        files.forEach(file => {
+            // Only process .ttf files
+            if (path.extname(file).toLowerCase() === '.ttf') {
+                const fontPath = path.join(directory, file);
+                const fontFamily = path.basename(file, '.ttf'); // Use the file name as family name
+                registerFont(fontPath, { family: fontFamily });
 
-        console.log(`Registered font: ${fontFamily} from ${fontPath}`);
-      }
-    });
-  } catch (error) {
-    console.error(`Error registering fonts: ${error.message}`);
-  }
+                console.log(`Registered font: ${fontFamily} from ${fontPath}`);
+            }
+        });
+    } catch (error) {
+        console.error(`Error registering fonts: ${error.message}`);
+    }
 }
 
 function dateParser(date, argument) {
@@ -70,7 +70,42 @@ export async function generateCanvas(weekRange, events) {
         ctx.textBaseline = 'middle';
         ctx.fillText(text, x, y);
     }
-    
+
+    function fitTextToDimensions(ctx, text, maxWidth, maxHeight, initialFontSize) {
+        let words = text.split(" ");
+        let fontSize = initialFontSize;
+
+        // Measure the text width and estimated height
+        const measureText = (text, size) => {
+            ctx.font = `${size}px ${font}`;
+            const metrics = ctx.measureText(text);
+            return metrics.width;
+        };
+
+        // Loop to decrement font size until it fits within the given width and height
+        while (fontSize > 0) {
+            const textWidth = measureText(text, fontSize);
+
+            // Check if the text fits within the constraints
+            if (textWidth <= maxWidth && fontSize <= maxHeight) {
+                return {fittedText: text, fittedSize: fontSize};
+            } else if (words.length > 1 && fontSize <= maxHeight / 2) {
+                // Check if the text fits if split into two lines
+                for (let i = 0; i <= words.length; i++) {
+                    let lowerPart = words.slice(i).join(" ");
+                    const lowerWidth = measureText(lowerPart, fontSize);
+                    let upperPart = words.slice(0, i).join(" ");
+                    const upperWidth = measureText(upperPart, fontSize);
+                    if (upperWidth <= maxWidth && lowerWidth <= maxWidth) {
+                        return {fittedText: [upperPart, lowerPart], fittedSize: fontSize}
+                    }
+                }        
+            }
+            fontSize--;
+        }
+        return {fittedText: text, fittedSize: fontSize};
+    }
+
     const canvas = createCanvas(size.width, size.height);
     const ctx = canvas.getContext('2d');
 
@@ -95,7 +130,13 @@ export async function generateCanvas(weekRange, events) {
                     drawContainer(entrycolors.none, i);
                 }
                 // Draw entries text
-                drawText(ctx, event.summary, entries.posX, entries.posY + spacing * i, entries.size);
+                const {fittedText, fittedSize} = fitTextToDimensions(ctx, event.summary, entries.maxWidth, entries.maxHeight, entries.size);
+                if (!Array.isArray(fittedText)) {
+                    drawText(ctx, fittedText, entries.posX, entries.posY + spacing * i, fittedSize);
+                } else {
+                    drawText(ctx, fittedText[0], entries.posX, entries.posY - fittedSize / 2 + spacing * i, fittedSize);
+                    drawText(ctx, fittedText[1], entries.posX, entries.posY + fittedSize / 2 + spacing * i, fittedSize);
+                }
                 // Draw time text
                 drawText(ctx, dateParser(event.start, 'am/pm'), time.posX, time.posY + spacing * i, time.size);
                 eventDrawn = true;
