@@ -78,12 +78,12 @@ function saveConfig() {
             },
             title: {
                 string: document.getElementById('titleString').value,
-                size: document.getElementById('titleSize').value,
+                size: parseInt(document.getElementById('titleSize').value),
                 posX: parseInt(document.getElementById('titlePosX').value),
                 posY: parseInt(document.getElementById('titlePosY').value)
             },
             weekrange: {
-                size: document.getElementById('weekrangeSize').value,
+                size: parseInt(document.getElementById('weekrangeSize').value),
                 posX: parseInt(document.getElementById('weekrangePosX').value),
                 posY: parseInt(document.getElementById('weekrangePosY').value)
             },
@@ -95,17 +95,17 @@ function saveConfig() {
                 //     "THU",
                 //     "FRI",
                 // ],
-                size: document.getElementById('weekdaysSize').value,
+                size: parseInt(document.getElementById('weekdaysSize').value),
                 posX: parseInt(document.getElementById('weekdaysPosX').value),
                 posY: parseInt(document.getElementById('weekdaysPosY').value)
             },
             entries: {
-                size: document.getElementById('entriesSize').value,
+                size: parseInt(document.getElementById('entriesSize').value),
                 posX: parseInt(document.getElementById('entriesPosX').value),
                 posY: parseInt(document.getElementById('entriesPosY').value)
             },
             "time": {
-                size: document.getElementById('timeSize').value,
+                size: parseInt(document.getElementById('timeSize').value),
                 posX: parseInt(document.getElementById('timePosX').value),
                 posY: parseInt(document.getElementById('timePosY').value)
             },

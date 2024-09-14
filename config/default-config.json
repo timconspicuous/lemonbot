@@ -11,12 +11,12 @@
     },
     "title": {
       "string": "Stream Schedule",
-      "size": "75px",
+      "size": 75,
       "posX": 400,
       "posY": 100
     },
     "weekrange": {
-      "size": "45px",
+      "size": 45,
       "posX": 400,
       "posY": 170
     },
@@ -28,17 +28,17 @@
         "THU",
         "FRI"
       ],
-      "size": "45px",
+      "size": 45,
       "posX": 185,
       "posY": 275
     },
     "entries": {
-      "size": "40px",
+      "size": 40,
       "posX": 400,
       "posY": 275
     },
     "time": {
-      "size": "35px",
+      "size": 35,
       "posX": 620,
       "posY": 275
     },

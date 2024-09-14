@@ -64,7 +64,7 @@ export async function generateCanvas(weekRange, events) {
     const icons = new Array(weekday.length);
 
     function drawText(ctx, text, x, y, fontSize, color = fontcolor) {
-        ctx.font = `${fontSize} ${font}`;
+        ctx.font = `${fontSize}px ${font}`;
         ctx.fillStyle = color;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
