@@ -14,36 +14,152 @@
         <h1>Stream Schedule Configuration</h1>
 
         <section>
-            <h2>General Settings</h2>
+            <h2 class="section-header">General Settings</h2>
             <div class="section-content">
                 <div class="input-group">
-                    <label for="timezone">
-                        Timezone:
-                    </label>
-                    <select id="timezone" name="timezone"></select>
-                    <button class="reset-field" data-field="timezone">⟳</button>
+                    <label for="timezone">Timezone:</label>
+                    <div class="input-button-wrapper">
+                        <select id="timezone" name="timezone">
+                            <option></option>
+                            <option value="Etc/GMT+12">(GMT-12:00) International Date Line West</option>
+                            <option value="Pacific/Midway">(GMT-11:00) Midway Island, Samoa</option>
+                            <option value="Pacific/Honolulu">(GMT-10:00) Hawaii</option>
+                            <option value="US/Alaska">(GMT-09:00) Alaska</option>
+                            <option value="America/Los_Angeles">(GMT-08:00) Pacific Time (US & Canada)</option>
+                            <option value="America/Tijuana">(GMT-08:00) Tijuana, Baja California</option>
+                            <option value="US/Arizona">(GMT-07:00) Arizona</option>
+                            <option value="America/Chihuahua">(GMT-07:00) Chihuahua, La Paz, Mazatlan</option>
+                            <option value="US/Mountain">(GMT-07:00) Mountain Time (US & Canada)</option>
+                            <option value="America/Managua">(GMT-06:00) Central America</option>
+                            <option value="US/Central">(GMT-06:00) Central Time (US & Canada)</option>
+                            <option value="America/Mexico_City">(GMT-06:00) Guadalajara, Mexico City, Monterrey</option>
+                            <option value="Canada/Saskatchewan">(GMT-06:00) Saskatchewan</option>
+                            <option value="America/Bogota">(GMT-05:00) Bogota, Lima, Quito, Rio Branco</option>
+                            <option value="US/Eastern">(GMT-05:00) Eastern Time (US & Canada)</option>
+                            <option value="US/East-Indiana">(GMT-05:00) Indiana (East)</option>
+                            <option value="Canada/Atlantic">(GMT-04:00) Atlantic Time (Canada)</option>
+                            <option value="America/Caracas">(GMT-04:00) Caracas, La Paz</option>
+                            <option value="America/Manaus">(GMT-04:00) Manaus</option>
+                            <option value="America/Santiago">(GMT-04:00) Santiago</option>
+                            <option value="Canada/Newfoundland">(GMT-03:30) Newfoundland</option>
+                            <option value="America/Sao_Paulo">(GMT-03:00) Brasilia</option>
+                            <option value="America/Argentina/Buenos_Aires">(GMT-03:00) Buenos Aires, Georgetown</option>
+                            <option value="America/Godthab">(GMT-03:00) Greenland</option>
+                            <option value="America/Montevideo">(GMT-03:00) Montevideo</option>
+                            <option value="America/Noronha">(GMT-02:00) Mid-Atlantic</option>
+                            <option value="Atlantic/Cape_Verde">(GMT-01:00) Cape Verde Is.</option>
+                            <option value="Atlantic/Azores">(GMT-01:00) Azores</option>
+                            <option value="Africa/Casablanca">(GMT+00:00) Casablanca, Monrovia, Reykjavik</option>
+                            <option value="Etc/Greenwich">(GMT+00:00) Greenwich Mean Time : Dublin, Edinburgh, Lisbon,
+                                London</option>
+                            <option value="Europe/Amsterdam">(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm,
+                                Vienna</option>
+                            <option value="Europe/Belgrade">(GMT+01:00) Belgrade, Bratislava, Budapest, Ljubljana,
+                                Prague</option>
+                            <option value="Europe/Brussels">(GMT+01:00) Brussels, Copenhagen, Madrid, Paris</option>
+                            <option value="Europe/Sarajevo">(GMT+01:00) Sarajevo, Skopje, Warsaw, Zagreb</option>
+                            <option value="Africa/Lagos">(GMT+01:00) West Central Africa</option>
+                            <option value="Asia/Amman">(GMT+02:00) Amman</option>
+                            <option value="Europe/Athens">(GMT+02:00) Athens, Bucharest, Istanbul</option>
+                            <option value="Asia/Beirut">(GMT+02:00) Beirut</option>
+                            <option value="Africa/Cairo">(GMT+02:00) Cairo</option>
+                            <option value="Africa/Harare">(GMT+02:00) Harare, Pretoria</option>
+                            <option value="Europe/Helsinki">(GMT+02:00) Helsinki, Kyiv, Riga, Sofia, Tallinn, Vilnius
+                            </option>
+                            <option value="Asia/Jerusalem">(GMT+02:00) Jerusalem</option>
+                            <option value="Europe/Minsk">(GMT+02:00) Minsk</option>
+                            <option value="Africa/Windhoek">(GMT+02:00) Windhoek</option>
+                            <option value="Asia/Kuwait">(GMT+03:00) Kuwait, Riyadh, Baghdad</option>
+                            <option value="Europe/Moscow">(GMT+03:00) Moscow, St. Petersburg, Volgograd</option>
+                            <option value="Africa/Nairobi">(GMT+03:00) Nairobi</option>
+                            <option value="Asia/Tbilisi">(GMT+03:00) Tbilisi</option>
+                            <option value="Asia/Tehran">(GMT+03:30) Tehran</option>
+                            <option value="Asia/Muscat">(GMT+04:00) Abu Dhabi, Muscat</option>
+                            <option value="Asia/Baku">(GMT+04:00) Baku</option>
+                            <option value="Asia/Yerevan">(GMT+04:00) Yerevan</option>
+                            <option value="Asia/Kabul">(GMT+04:30) Kabul</option>
+                            <option value="Asia/Yekaterinburg">(GMT+05:00) Yekaterinburg</option>
+                            <option value="Asia/Karachi">(GMT+05:00) Islamabad, Karachi, Tashkent</option>
+                            <option value="Asia/Calcutta">(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi</option>
+                            <option value="Asia/Calcutta">(GMT+05:30) Sri Jayawardenapura</option>
+                            <option value="Asia/Katmandu">(GMT+05:45) Kathmandu</option>
+                            <option value="Asia/Almaty">(GMT+06:00) Almaty, Novosibirsk</option>
+                            <option value="Asia/Dhaka">(GMT+06:00) Astana, Dhaka</option>
+                            <option value="Asia/Rangoon">(GMT+06:30) Yangon (Rangoon)</option>
+                            <option value="Asia/Bangkok">(GMT+07:00) Bangkok, Hanoi, Jakarta</option>
+                            <option value="Asia/Krasnoyarsk">(GMT+07:00) Krasnoyarsk</option>
+                            <option value="Asia/Hong_Kong">(GMT+08:00) Beijing, Chongqing, Hong Kong, Urumqi</option>
+                            <option value="Asia/Kuala_Lumpur">(GMT+08:00) Kuala Lumpur, Singapore</option>
+                            <option value="Asia/Irkutsk">(GMT+08:00) Irkutsk, Ulaan Bataar</option>
+                            <option value="Australia/Perth">(GMT+08:00) Perth</option>
+                            <option value="Asia/Taipei">(GMT+08:00) Taipei</option>
+                            <option value="Asia/Tokyo">(GMT+09:00) Osaka, Sapporo, Tokyo</option>
+                            <option value="Asia/Seoul">(GMT+09:00) Seoul</option>
+                            <option value="Asia/Yakutsk">(GMT+09:00) Yakutsk</option>
+                            <option value="Australia/Adelaide">(GMT+09:30) Adelaide</option>
+                            <option value="Australia/Darwin">(GMT+09:30) Darwin</option>
+                            <option value="Australia/Brisbane">(GMT+10:00) Brisbane</option>
+                            <option value="Australia/Canberra">(GMT+10:00) Canberra, Melbourne, Sydney</option>
+                            <option value="Australia/Hobart">(GMT+10:00) Hobart</option>
+                            <option value="Pacific/Guam">(GMT+10:00) Guam, Port Moresby</option>
+                            <option value="Asia/Vladivostok">(GMT+10:00) Vladivostok</option>
+                            <option value="Asia/Magadan">(GMT+11:00) Magadan, Solomon Is., New Caledonia</option>
+                            <option value="Pacific/Auckland">(GMT+12:00) Auckland, Wellington</option>
+                            <option value="Pacific/Fiji">(GMT+12:00) Fiji, Kamchatka, Marshall Is.</option>
+                            <option value="Pacific/Tongatapu">(GMT+13:00) Nuku'alofa</option>
+                        </select>
+                        <button class="reset-field" data-field="timezone">⟳</button>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <section class="section-header">
-            <h2 class="section-header">Canvas</h2>
+        <section>
+            <h2 class="section-header">Bluesky Settings</h2>
             <div class="section-content">
                 <div class="input-groups-row">
                     <div class="input-group">
-                        <label for="font">
-                            Font:
-                            <span class="info-icon"
-                                title="The font to use for the schedule. Place .ttf file in /assets/fonts/">ℹ</span>
-                        </label>
-                        <input type="text" id="font" name="font">
-                        <button class="reset-field" data-field="font">⟳</button>
+                        <label for="fontColor">Bluesky Text:</label>
+                        <div class="input-button-wrapper">
+                            <input type="text" id="blueskyText" name="blueskyText">
+                            <button class="reset-field" data-field="blueskyText">⟳</button>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label for="fontColor">Bluesky Alt-Text:</label>
+                        <div class="input-button-wrapper">
+                            <input type="text" id="blueskyAltText" name="blueskyAltText">
+                            <button class="reset-field" data-field="blueskyAltText">⟳</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-header">Twitch Settings</h2>
+            <div class="section-content">
+            </div>
+        </section>
+
+        <section>
+            <h2 class="section-header">Canvas Settings</h2>
+            <div class="section-content">
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label for="font">Font:</label>
+                        <div class="input-button-wrapper">
+                            <input type="text" id="font" name="font">
+                            <button class="reset-field" data-field="font">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="fontColor">Font Color:</label>
-                        <input type="color" id="fontColor" name="fontColor">
-                        <button class="reset-field" data-field="fontColor">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="color" id="fontColor" name="fontColor">
+                            <button class="reset-field" data-field="fontColor">⟳</button>
+                        </div>
                     </div>
                 </div>
 
@@ -51,47 +167,61 @@
                 <div class="input-groups-row">
                     <div class="input-group">
                         <label for="twitchIcon">Twitch Icon:</label>
-                        <input type="text" id="twitchIcon" name="twitchIcon">
-                        <button class="reset-field" data-field="twitchIcon">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="text" id="twitchIcon" name="twitchIcon">
+                            <button class="reset-field" data-field="twitchIcon">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="discordIcon">Discord Icon:</label>
-                        <input type="text" id="discordIcon" name="discordIcon">
-                        <button class="reset-field" data-field="discordIcon">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="text" id="discordIcon" name="discordIcon">
+                            <button class="reset-field" data-field="discordIcon">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="overlay">Overlay:</label>
-                        <input type="text" id="overlay" name="overlay">
-                        <button class="reset-field" data-field="overlay">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="text" id="overlay" name="overlay">
+                            <button class="reset-field" data-field="overlay">⟳</button>
+                        </div>
                     </div>
                 </div>
 
                 <h3>Title</h3>
                 <div class="input-group">
                     <label for="titleString">Title String:</label>
-                    <input type="text" id="titleString" name="titleString">
-                    <button class="reset-field" data-field="titleString">⟳</button>
+                    <div class="input-button-wrapper">
+                        <input type="text" id="titleString" name="titleString">
+                        <button class="reset-field" data-field="titleString">⟳</button>
+                    </div>
                 </div>
 
                 <div class="input-groups-row">
                     <div class="input-group">
                         <label for="titleSize">Font Size:</label>
-                        <input type="number" id="titleSize" name="titleSize">
-                        <button class="reset-field" data-field="titleSize">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="titleSize" name="titleSize">
+                            <button class="reset-field" data-field="titleSize">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="titlePosX">Position X:</label>
-                        <input type="number" id="titlePosX" name="titlePosX">
-                        <button class="reset-field" data-field="titlePosX">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="titlePosX" name="titlePosX">
+                            <button class="reset-field" data-field="titlePosX">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="titlePosY">Position Y:</label>
-                        <input type="number" id="titlePosY" name="titlePosY">
-                        <button class="reset-field" data-field="titlePosY">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="titlePosY" name="titlePosY">
+                            <button class="reset-field" data-field="titlePosY">⟳</button>
+                        </div>
                     </div>
                 </div>
 
@@ -99,20 +229,26 @@
                 <div class="input-groups-row">
                     <div class="input-group">
                         <label for="weekrangeSize">Font Size:</label>
-                        <input type="number" id="weekrangeSize" name="weekrangeSize">
-                        <button class="reset-field" data-field="weekrangeSize">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="weekrangeSize" name="weekrangeSize">
+                            <button class="reset-field" data-field="weekrangeSize">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="weekrangePosX">Position X:</label>
-                        <input type="number" id="weekrangePosX" name="weekrangePosX">
-                        <button class="reset-field" data-field="weekrangePosX">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="weekrangePosX" name="weekrangePosX">
+                            <button class="reset-field" data-field="weekrangePosX">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="weekrangePosY">Position Y:</label>
-                        <input type="number" id="weekrangePosY" name="weekrangePosY">
-                        <button class="reset-field" data-field="weekrangePosY">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="weekrangePosY" name="weekrangePosY">
+                            <button class="reset-field" data-field="weekrangePosY">⟳</button>
+                        </div>
                     </div>
                 </div>
 
@@ -120,20 +256,26 @@
                 <div class="input-groups-row">
                     <div class="input-group">
                         <label for="weekdaysSize">Font Size:</label>
-                        <input type="number" id="weekdaysSize" name="weekdaysSize">
-                        <button class="reset-field" data-field="weekdaysSize">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="weekdaysSize" name="weekdaysSize">
+                            <button class="reset-field" data-field="weekdaysSize">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="weekdaysPosX">Position X:</label>
-                        <input type="number" id="weekdaysPosX" name="weekdaysPosX">
-                        <button class="reset-field" data-field="weekdaysPosX">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="weekdaysPosX" name="weekdaysPosX">
+                            <button class="reset-field" data-field="weekdaysPosX">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="weekdaysPosY">Position Y:</label>
-                        <input type="number" id="weekdaysPosY" name="weekdaysPosY">
-                        <button class="reset-field" data-field="weekdaysPosY">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="weekdaysPosY" name="weekdaysPosY">
+                            <button class="reset-field" data-field="weekdaysPosY">⟳</button>
+                        </div>
                     </div>
                 </div>
 
@@ -141,20 +283,44 @@
                 <div class="input-groups-row">
                     <div class="input-group">
                         <label for="entriesSize">Font Size:</label>
-                        <input type="number" id="entriesSize" name="entriesSize">
-                        <button class="reset-field" data-field="entriesSize">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="entriesSize" name="entriesSize">
+                            <button class="reset-field" data-field="entriesSize">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="entriesPosX">Position X:</label>
-                        <input type="number" id="entriesPosX" name="entriesPosX">
-                        <button class="reset-field" data-field="entriesPosX">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="entriesPosX" name="entriesPosX">
+                            <button class="reset-field" data-field="entriesPosX">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="entriesPosY">Position Y:</label>
-                        <input type="number" id="entriesPosY" name="entriesPosY">
-                        <button class="reset-field" data-field="entriesPosY">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="entriesPosY" name="entriesPosY">
+                            <button class="reset-field" data-field="entriesPosY">⟳</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="input-groups-row">
+                    <div class="input-group">
+                        <label for="entriesSize">Max Width:</label>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="entriesMaxWidth" name="entriesMaxWidth">
+                            <button class="reset-field" data-field="entriesMaxWidth">⟳</button>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="entriesPosX">Max Height:</label>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="entriesMaxHeight" name="entriesMaxHeight">
+                            <button class="reset-field" data-field="entriesMaxHeight">⟳</button>
+                        </div>
                     </div>
                 </div>
 
@@ -162,20 +328,26 @@
                 <div class="input-groups-row">
                     <div class="input-group">
                         <label for="timeSize">Font Size:</label>
-                        <input type="number" id="timeSize" name="timeSize">
-                        <button class="reset-field" data-field="timeSize">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="timeSize" name="timeSize">
+                            <button class="reset-field" data-field="timeSize">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="timePosX">Position X:</label>
-                        <input type="number" id="timePosX" name="timePosX">
-                        <button class="reset-field" data-field="timePosX">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="timePosX" name="timePosX">
+                            <button class="reset-field" data-field="timePosX">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="timePosY">Position Y:</label>
-                        <input type="number" id="timePosY" name="timePosY">
-                        <button class="reset-field" data-field="timePosY">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="number" id="timePosY" name="timePosY">
+                            <button class="reset-field" data-field="timePosY">⟳</button>
+                        </div>
                     </div>
                 </div>
 
@@ -183,20 +355,26 @@
                 <div class="input-groups-row">
                     <div class="input-group">
                         <label for="noneColor">None Color:</label>
-                        <input type="color" id="noneColor" name="noneColor">
-                        <button class="reset-field" data-field="noneColor">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="color" id="noneColor" name="noneColor">
+                            <button class="reset-field" data-field="noneColor">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="twitchColor">Twitch Color:</label>
-                        <input type="color" id="twitchColor" name="twitchColor">
-                        <button class="reset-field" data-field="twitchColor">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="color" id="twitchColor" name="twitchColor">
+                            <button class="reset-field" data-field="twitchColor">⟳</button>
+                        </div>
                     </div>
 
                     <div class="input-group">
                         <label for="discordColor">Discord Color:</label>
-                        <input type="color" id="discordColor" name="discordColor">
-                        <button class="reset-field" data-field="discordColor">⟳</button>
+                        <div class="input-button-wrapper">
+                            <input type="color" id="discordColor" name="discordColor">
+                            <button class="reset-field" data-field="discordColor">⟳</button>
+                        </div>
                     </div>
                 </div>
             </div>

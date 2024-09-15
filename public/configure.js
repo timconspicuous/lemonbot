@@ -11,16 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.reset-field').forEach(button => {
         button.addEventListener('click', (event) => resetField(event.target.dataset.field));
     });
-
-    // const timeZones = moment.tz.names();
-    // const select = document.getElementById('timezone');
-
-    // timeZones.forEach(timeZone => {
-    //     const option = document.createElement('option');
-    //     option.value = timeZone;
-    //     option.text = timeZone;
-    //     select.add(option);
-    // });
 });
 
 function loadConfig() {
@@ -39,6 +29,8 @@ function loadConfig() {
 
 function populateForm(config) {
     document.getElementById('timezone').value = config.timezone;
+    document.getElementById('blueskyText').value = config.bluesky.text;
+    document.getElementById('blueskyAltText').value = config.bluesky.alttext;
     document.getElementById('font').value = config.canvas.font;
     document.getElementById('fontColor').value = config.canvas.fontcolor;
     document.getElementById('twitchIcon').value = config.canvas.assets.twitchicon;
@@ -57,6 +49,8 @@ function populateForm(config) {
     document.getElementById('entriesSize').value = config.canvas.entries.size;
     document.getElementById('entriesPosX').value = config.canvas.entries.posX;
     document.getElementById('entriesPosY').value = config.canvas.entries.posY;
+    document.getElementById('entriesMaxWidth').value = config.canvas.entries.maxWidth;
+    document.getElementById('entriesMaxHeight').value = config.canvas.entries.maxHeight;
     document.getElementById('timeSize').value = config.canvas.time.size;
     document.getElementById('timePosX').value = config.canvas.time.posX;
     document.getElementById('timePosY').value = config.canvas.time.posY;
@@ -67,7 +61,7 @@ function populateForm(config) {
 
 function saveConfig() {
     const updatedFields = {
-        //timezone: 'Europe/Brussels',
+        timezone: document.getElementById('timezone').value,
         canvas: {
             font: document.getElementById('font').value,
             fontcolor: document.getElementById('fontColor').value,
@@ -102,14 +96,16 @@ function saveConfig() {
             entries: {
                 size: parseInt(document.getElementById('entriesSize').value),
                 posX: parseInt(document.getElementById('entriesPosX').value),
-                posY: parseInt(document.getElementById('entriesPosY').value)
+                posY: parseInt(document.getElementById('entriesPosY').value),
+                maxWidth: parseInt(document.getElementById('entriesMaxWidth').value),
+                maxHeight: parseInt(document.getElementById('entriesMaxHeight').value)
             },
-            "time": {
+            time: {
                 size: parseInt(document.getElementById('timeSize').value),
                 posX: parseInt(document.getElementById('timePosX').value),
                 posY: parseInt(document.getElementById('timePosY').value)
             },
-            "entrycolors": {
+            entrycolors: {
                 none: document.getElementById('noneColor').value,
                 twitch: document.getElementById('twitchColor').value,
                 discord: document.getElementById('discordColor').value,
@@ -126,13 +122,13 @@ function saveConfig() {
             // },
             // "spacing": 112.5,
         },
-        // "bluesky": {
-        //     "text": "",
-        //     "alttext": "Weekly schedule:",
-        //     "locationFilter": [
-        //         "Twitch"
-        //     ]
-        // },
+        bluesky: {
+            text: document.getElementById('blueskyText').value,
+            alttext: document.getElementById('blueskyAltText').value,
+            //     "locationFilter": [
+            //         "Twitch"
+            //     ]
+        },
     };
 
     fetch('/api/config', {

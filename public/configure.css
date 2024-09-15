@@ -26,6 +26,10 @@ section {
     margin-left: 20px;
 }
 
+label {
+    margin-right: 20px;
+}
+
 .input-groups-row {
     display: flex;
     gap: 20px;
@@ -48,24 +52,24 @@ section {
     flex: 2;
 }
 
+.input-button-wrapper {
+    display: inline-flex;
+    align-items: stretch;
+}
+
 .reset-field {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: #f0f0f0;
     border: 1px solid #ccc;
-    border-radius: 3px;
+    font-size: 16px;
+    padding: 0 12px;
     cursor: pointer;
-    font-size: 12px;
-    margin-left: 5px;
-    padding: 5px 10px;
 }
 
 .reset-field:hover {
     background-color: #e0e0e0;
-}
-
-.info-icon {
-    cursor: help;
-    color: #007bff;
-    margin-left: 5px;
 }
 
 .number-input-container {
