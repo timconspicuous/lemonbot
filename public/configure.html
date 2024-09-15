@@ -19,7 +19,7 @@
                 <div class="input-group">
                     <label for="timezone">Timezone:</label>
                     <div class="input-button-wrapper">
-                        <select id="timezone" name="timezone">
+                        <select id="timezone">
                             <option></option>
                             <option value="Etc/GMT+12">(GMT-12:00) International Date Line West</option>
                             <option value="Pacific/Midway">(GMT-11:00) Midway Island, Samoa</option>
@@ -119,17 +119,17 @@
             <div class="section-content">
                 <div class="input-groups-row">
                     <div class="input-group">
-                        <label for="fontColor">Bluesky Text:</label>
+                        <label for="bluesky.text">Bluesky Text:</label>
                         <div class="input-button-wrapper">
-                            <input type="text" id="blueskyText" name="blueskyText">
-                            <button class="reset-field" data-field="blueskyText">⟳</button>
+                            <input type="text" id="bluesky.text">
+                            <button class="reset-field" data-field="bluesky.text">⟳</button>
                         </div>
                     </div>
                     <div class="input-group">
-                        <label for="fontColor">Bluesky Alt-Text:</label>
+                        <label for="bluesky.alttext">Bluesky Alt-Text:</label>
                         <div class="input-button-wrapper">
-                            <input type="text" id="blueskyAltText" name="blueskyAltText">
-                            <button class="reset-field" data-field="blueskyAltText">⟳</button>
+                            <input type="text" id="bluesky.alttext">
+                            <button class="reset-field" data-field="bluesky.alttext">⟳</button>
                         </div>
                     </div>
                 </div>
@@ -147,18 +147,18 @@
             <div class="section-content">
                 <div class="input-groups-row">
                     <div class="input-group">
-                        <label for="font">Font:</label>
+                        <label for="canvas.font">Font:</label>
                         <div class="input-button-wrapper">
-                            <input type="text" id="font" name="font">
-                            <button class="reset-field" data-field="font">⟳</button>
+                            <input type="text" id="canvas.font">
+                            <button class="reset-field" data-field="canvas.font">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="fontColor">Font Color:</label>
+                        <label for="canvas.fontcolor">Font Color:</label>
                         <div class="input-button-wrapper">
-                            <input type="color" id="fontColor" name="fontColor">
-                            <button class="reset-field" data-field="fontColor">⟳</button>
+                            <input type="color" id="canvas.fontcolor">
+                            <button class="reset-field" data-field="canvas.fontcolor">⟳</button>
                         </div>
                     </div>
                 </div>
@@ -166,61 +166,61 @@
                 <h3>Assets</h3>
                 <div class="input-groups-row">
                     <div class="input-group">
-                        <label for="twitchIcon">Twitch Icon:</label>
+                        <label for="canvas.assets.twitchicon">Twitch Icon:</label>
                         <div class="input-button-wrapper">
-                            <input type="text" id="twitchIcon" name="twitchIcon">
-                            <button class="reset-field" data-field="twitchIcon">⟳</button>
+                            <input type="text" id="canvas.assets.twitchicon">
+                            <button class="reset-field" data-field="canvas.assets.twitchicon">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="discordIcon">Discord Icon:</label>
+                        <label for="canvas.assets.discordicon">Discord Icon:</label>
                         <div class="input-button-wrapper">
-                            <input type="text" id="discordIcon" name="discordIcon">
-                            <button class="reset-field" data-field="discordIcon">⟳</button>
+                            <input type="text" id="canvas.assets.discordicon">
+                            <button class="reset-field" data-field="canvas.assets.discordicon">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="overlay">Overlay:</label>
+                        <label for="canvas.assets.overlay">Overlay:</label>
                         <div class="input-button-wrapper">
-                            <input type="text" id="overlay" name="overlay">
-                            <button class="reset-field" data-field="overlay">⟳</button>
+                            <input type="text" id="canvas.assets.overlay">
+                            <button class="reset-field" data-field="canvas.assets.overlay">⟳</button>
                         </div>
                     </div>
                 </div>
 
                 <h3>Title</h3>
                 <div class="input-group">
-                    <label for="titleString">Title String:</label>
+                    <label for="canvas.title.string">Title String:</label>
                     <div class="input-button-wrapper">
-                        <input type="text" id="titleString" name="titleString">
-                        <button class="reset-field" data-field="titleString">⟳</button>
+                        <input type="text" id="canvas.title.string">
+                        <button class="reset-field" data-field="canvas.title.string">⟳</button>
                     </div>
                 </div>
 
                 <div class="input-groups-row">
                     <div class="input-group">
-                        <label for="titleSize">Font Size:</label>
+                        <label for="canvas.title.size">Font Size:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="titleSize" name="titleSize">
-                            <button class="reset-field" data-field="titleSize">⟳</button>
+                            <input type="number" id="canvas.title.size">
+                            <button class="reset-field" data-field="canvas.title.size">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="titlePosX">Position X:</label>
+                        <label for="canvas.title.posX">Position X:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="titlePosX" name="titlePosX">
-                            <button class="reset-field" data-field="titlePosX">⟳</button>
+                            <input type="number" id="canvas.title.posX">
+                            <button class="reset-field" data-field="canvas.title.posX">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="titlePosY">Position Y:</label>
+                        <label for="canvas.title.posY">Position Y:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="titlePosY" name="titlePosY">
-                            <button class="reset-field" data-field="titlePosY">⟳</button>
+                            <input type="number" id="canvas.title.posY">
+                            <button class="reset-field" data-field="canvas.title.posY">⟳</button>
                         </div>
                     </div>
                 </div>
@@ -228,26 +228,26 @@
                 <h3>Week Range</h3>
                 <div class="input-groups-row">
                     <div class="input-group">
-                        <label for="weekrangeSize">Font Size:</label>
+                        <label for="canvas.weekrange.size">Font Size:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="weekrangeSize" name="weekrangeSize">
-                            <button class="reset-field" data-field="weekrangeSize">⟳</button>
+                            <input type="number" id="canvas.weekrange.size">
+                            <button class="reset-field" data-field="canvas.weekrange.size">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="weekrangePosX">Position X:</label>
+                        <label for="canvas.weekrange.posX">Position X:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="weekrangePosX" name="weekrangePosX">
-                            <button class="reset-field" data-field="weekrangePosX">⟳</button>
+                            <input type="number" id="canvas.weekrange.posX">
+                            <button class="reset-field" data-field="canvas.weekrange.posX">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="weekrangePosY">Position Y:</label>
+                        <label for="canvas.weekrange.posY">Position Y:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="weekrangePosY" name="weekrangePosY">
-                            <button class="reset-field" data-field="weekrangePosY">⟳</button>
+                            <input type="number" id="canvas.weekrange.posY">
+                            <button class="reset-field" data-field="canvas.weekrange.posY">⟳</button>
                         </div>
                     </div>
                 </div>
@@ -255,26 +255,26 @@
                 <h3>Week Days</h3>
                 <div class="input-groups-row">
                     <div class="input-group">
-                        <label for="weekdaysSize">Font Size:</label>
+                        <label for="canvas.weekdays.size">Font Size:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="weekdaysSize" name="weekdaysSize">
-                            <button class="reset-field" data-field="weekdaysSize">⟳</button>
+                            <input type="number" id="canvas.weekdays.size">
+                            <button class="reset-field" data-field="canvas.weekdays.size">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="weekdaysPosX">Position X:</label>
+                        <label for="canvas.weekdays.posX">Position X:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="weekdaysPosX" name="weekdaysPosX">
-                            <button class="reset-field" data-field="weekdaysPosX">⟳</button>
+                            <input type="number" id="canvas.weekdays.posX">
+                            <button class="reset-field" data-field="canvas.weekdays.posX">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="weekdaysPosY">Position Y:</label>
+                        <label for="canvas.weekdays.posY">Position Y:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="weekdaysPosY" name="weekdaysPosY">
-                            <button class="reset-field" data-field="weekdaysPosY">⟳</button>
+                            <input type="number" id="canvas.weekdays.posY">
+                            <button class="reset-field" data-field="canvas.weekdays.posY">⟳</button>
                         </div>
                     </div>
                 </div>
@@ -282,44 +282,44 @@
                 <h3>Entries</h3>
                 <div class="input-groups-row">
                     <div class="input-group">
-                        <label for="entriesSize">Font Size:</label>
+                        <label for="canvas.entries.size">Font Size:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="entriesSize" name="entriesSize">
-                            <button class="reset-field" data-field="entriesSize">⟳</button>
+                            <input type="number" id="canvas.entries.size">
+                            <button class="reset-field" data-field="canvas.entries.size">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="entriesPosX">Position X:</label>
+                        <label for="canvas.entries.posX">Position X:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="entriesPosX" name="entriesPosX">
-                            <button class="reset-field" data-field="entriesPosX">⟳</button>
+                            <input type="number" id="canvas.entries.posX">
+                            <button class="reset-field" data-field="canvas.entries.posX">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="entriesPosY">Position Y:</label>
+                        <label for="canvas.entries.posY">Position Y:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="entriesPosY" name="entriesPosY">
-                            <button class="reset-field" data-field="entriesPosY">⟳</button>
+                            <input type="number" id="canvas.entries.posY">
+                            <button class="reset-field" data-field="canvas.entries.posY">⟳</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="input-groups-row">
                     <div class="input-group">
-                        <label for="entriesSize">Max Width:</label>
+                        <label for="canvas.entries.maxWidth">Max Width:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="entriesMaxWidth" name="entriesMaxWidth">
-                            <button class="reset-field" data-field="entriesMaxWidth">⟳</button>
+                            <input type="number" id="canvas.entries.maxWidth">
+                            <button class="reset-field" data-field="canvas.entries.maxWidth">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="entriesPosX">Max Height:</label>
+                        <label for="canvas.entries.maxHeight">Max Height:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="entriesMaxHeight" name="entriesMaxHeight">
-                            <button class="reset-field" data-field="entriesMaxHeight">⟳</button>
+                            <input type="number" id="canvas.entries.maxHeight">
+                            <button class="reset-field" data-field="canvas.entries.maxHeight">⟳</button>
                         </div>
                     </div>
                 </div>
@@ -327,26 +327,26 @@
                 <h3>Time Of Day</h3>
                 <div class="input-groups-row">
                     <div class="input-group">
-                        <label for="timeSize">Font Size:</label>
+                        <label for="canvas.time.size">Font Size:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="timeSize" name="timeSize">
-                            <button class="reset-field" data-field="timeSize">⟳</button>
+                            <input type="number" id="canvas.time.size">
+                            <button class="reset-field" data-field="canvas.time.size">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="timePosX">Position X:</label>
+                        <label for="canvas.time.posX">Position X:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="timePosX" name="timePosX">
-                            <button class="reset-field" data-field="timePosX">⟳</button>
+                            <input type="number" id="canvas.time.posX">
+                            <button class="reset-field" data-field="canvas.time.posX">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="timePosY">Position Y:</label>
+                        <label for="canvas.time.posY">Position Y:</label>
                         <div class="input-button-wrapper">
-                            <input type="number" id="timePosY" name="timePosY">
-                            <button class="reset-field" data-field="timePosY">⟳</button>
+                            <input type="number" id="canvas.time.posY">
+                            <button class="reset-field" data-field="canvas.time.posY">⟳</button>
                         </div>
                     </div>
                 </div>
@@ -354,26 +354,26 @@
                 <h3>Entry Colors</h3>
                 <div class="input-groups-row">
                     <div class="input-group">
-                        <label for="noneColor">None Color:</label>
+                        <label for="canvas.entrycolors.none">None Color:</label>
                         <div class="input-button-wrapper">
-                            <input type="color" id="noneColor" name="noneColor">
-                            <button class="reset-field" data-field="noneColor">⟳</button>
+                            <input type="color" id="canvas.entrycolors.none">
+                            <button class="reset-field" data-field="canvas.entrycolors.none">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="twitchColor">Twitch Color:</label>
+                        <label for="canvas.entrycolors.twitch">Twitch Color:</label>
                         <div class="input-button-wrapper">
-                            <input type="color" id="twitchColor" name="twitchColor">
-                            <button class="reset-field" data-field="twitchColor">⟳</button>
+                            <input type="color" id="canvas.entrycolors.twitch">
+                            <button class="reset-field" data-field="canvas.entrycolors.twitch">⟳</button>
                         </div>
                     </div>
 
                     <div class="input-group">
-                        <label for="discordColor">Discord Color:</label>
+                        <label for="canvas.entrycolors.discord">Discord Color:</label>
                         <div class="input-button-wrapper">
-                            <input type="color" id="discordColor" name="discordColor">
-                            <button class="reset-field" data-field="discordColor">⟳</button>
+                            <input type="color" id="canvas.entrycolors.discord">
+                            <button class="reset-field" data-field="canvas.entrycolors.discord">⟳</button>
                         </div>
                     </div>
                 </div>

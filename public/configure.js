@@ -13,12 +13,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+let flattenedDefaultConfig;
+
 function loadConfig() {
     Promise.all([
         fetch('/api/config/default').then(response => response.json()),
         fetch('/api/config').then(response => response.json())
     ]).then(([defaultData, currentData]) => {
         defaultConfig = defaultData;
+        flattenedDefaultConfig = flattenObject(defaultData);
         currentConfig = currentData;
         populateForm(currentConfig);
     }).catch(error => {
@@ -28,115 +31,50 @@ function loadConfig() {
 }
 
 function populateForm(config) {
-    document.getElementById('timezone').value = config.timezone;
-    document.getElementById('blueskyText').value = config.bluesky.text;
-    document.getElementById('blueskyAltText').value = config.bluesky.alttext;
-    document.getElementById('font').value = config.canvas.font;
-    document.getElementById('fontColor').value = config.canvas.fontcolor;
-    document.getElementById('twitchIcon').value = config.canvas.assets.twitchicon;
-    document.getElementById('discordIcon').value = config.canvas.assets.discordicon;
-    document.getElementById('overlay').value = config.canvas.assets.overlay;
-    document.getElementById('titleString').value = config.canvas.title.string;
-    document.getElementById('titleSize').value = config.canvas.title.size;
-    document.getElementById('titlePosX').value = config.canvas.title.posX;
-    document.getElementById('titlePosY').value = config.canvas.title.posY;
-    document.getElementById('weekrangeSize').value = config.canvas.weekrange.size;
-    document.getElementById('weekrangePosX').value = config.canvas.weekrange.posX;
-    document.getElementById('weekrangePosY').value = config.canvas.weekrange.posY;
-    document.getElementById('weekdaysSize').value = config.canvas.weekdays.size;
-    document.getElementById('weekdaysPosX').value = config.canvas.weekdays.posX;
-    document.getElementById('weekdaysPosY').value = config.canvas.weekdays.posY;
-    document.getElementById('entriesSize').value = config.canvas.entries.size;
-    document.getElementById('entriesPosX').value = config.canvas.entries.posX;
-    document.getElementById('entriesPosY').value = config.canvas.entries.posY;
-    document.getElementById('entriesMaxWidth').value = config.canvas.entries.maxWidth;
-    document.getElementById('entriesMaxHeight').value = config.canvas.entries.maxHeight;
-    document.getElementById('timeSize').value = config.canvas.time.size;
-    document.getElementById('timePosX').value = config.canvas.time.posX;
-    document.getElementById('timePosY').value = config.canvas.time.posY;
-    document.getElementById('noneColor').value = config.canvas.entrycolors.none;
-    document.getElementById('twitchColor').value = config.canvas.entrycolors.twitch;
-    document.getElementById('discordColor').value = config.canvas.entrycolors.discord;
+    flattenObject(config).forEach((value, key) => {
+        const inputElement = document.getElementById(key);
+        if (inputElement) {
+            inputElement.value = value;
+        }
+    });
+}
+
+function flattenObject(obj, prefix = '') {
+    let flattened = new Map();
+
+    for (let key in obj) {
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+            let subMap = flattenObject(obj[key], `${prefix}${key}.`);
+            for (let [subKey, value] of subMap) {
+                flattened.set(subKey, value);
+            }
+        } else {
+            flattened.set(`${prefix}${key}`, obj[key]);
+        }
+    }
+
+    return flattened;
 }
 
 function saveConfig() {
-    const updatedFields = {
-        timezone: document.getElementById('timezone').value,
-        canvas: {
-            font: document.getElementById('font').value,
-            fontcolor: document.getElementById('fontColor').value,
-            assets: {
-                twitchicon: document.getElementById('twitchIcon').value,
-                discordicon: document.getElementById('discordIcon').value,
-                overlay: document.getElementById('overlay').value
-            },
-            title: {
-                string: document.getElementById('titleString').value,
-                size: parseInt(document.getElementById('titleSize').value),
-                posX: parseInt(document.getElementById('titlePosX').value),
-                posY: parseInt(document.getElementById('titlePosY').value)
-            },
-            weekrange: {
-                size: parseInt(document.getElementById('weekrangeSize').value),
-                posX: parseInt(document.getElementById('weekrangePosX').value),
-                posY: parseInt(document.getElementById('weekrangePosY').value)
-            },
-            weekdays: {
-                // string: [
-                //     "MON",
-                //     "TUE",
-                //     "WED",
-                //     "THU",
-                //     "FRI",
-                // ],
-                size: parseInt(document.getElementById('weekdaysSize').value),
-                posX: parseInt(document.getElementById('weekdaysPosX').value),
-                posY: parseInt(document.getElementById('weekdaysPosY').value)
-            },
-            entries: {
-                size: parseInt(document.getElementById('entriesSize').value),
-                posX: parseInt(document.getElementById('entriesPosX').value),
-                posY: parseInt(document.getElementById('entriesPosY').value),
-                maxWidth: parseInt(document.getElementById('entriesMaxWidth').value),
-                maxHeight: parseInt(document.getElementById('entriesMaxHeight').value)
-            },
-            time: {
-                size: parseInt(document.getElementById('timeSize').value),
-                posX: parseInt(document.getElementById('timePosX').value),
-                posY: parseInt(document.getElementById('timePosY').value)
-            },
-            entrycolors: {
-                none: document.getElementById('noneColor').value,
-                twitch: document.getElementById('twitchColor').value,
-                discord: document.getElementById('discordColor').value,
-            },
-            // "size": {
-            //     "width": 800,
-            //     "height": 800
-            // },
-            // "container": {
-            //     "posX": 126,
-            //     "posY": 224,
-            //     "width": 548,
-            //     "height": 102
-            // },
-            // "spacing": 112.5,
-        },
-        bluesky: {
-            text: document.getElementById('blueskyText').value,
-            alttext: document.getElementById('blueskyAltText').value,
-            //     "locationFilter": [
-            //         "Twitch"
-            //     ]
-        },
-    };
+    const updatedConfig = {};
+
+    document.querySelectorAll('input, select').forEach(input => {
+        if (input.id) {
+            if (input.type === "number") {
+                setNestedValue(updatedConfig, input.id, Number(input.value));
+            } else {
+                setNestedValue(updatedConfig, input.id, input.value);
+            }
+        }
+    });
 
     fetch('/api/config', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(updatedFields),
+        body: JSON.stringify(updatedConfig),
     })
         .then(response => {
             if (!response.ok) {
@@ -146,14 +84,45 @@ function saveConfig() {
         })
         .then(data => {
             alert('Configuration updated successfully!');
-            // Optionally update the form with the returned full config
-            populateForm(data.config);
+            currentConfig = data.config;
+            populateForm(currentConfig);
         })
         .catch((error) => {
             console.error('Error:', error);
             alert('Failed to update configuration. Please try again.');
         });
 }
+
+function resetField(fieldName) {
+    const inputElement = document.getElementById(fieldName);
+    if (!inputElement) {
+        console.error(`Input element with id "${fieldName}" not found`);
+        return;
+    }
+
+    let defaultValue = getNestedValue(defaultConfig, fieldName);
+    if (defaultValue === undefined) {
+        console.error(`Default value for "${fieldName}" not found in defaultConfig`);
+        return;
+    }
+
+    inputElement.value = defaultValue;
+}
+
+function getNestedValue(obj, path) {
+    return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+}
+
+function setNestedValue(obj, path, value) {
+    const parts = path.split('.');
+    const last = parts.pop();
+    const parent = parts.reduce((acc, part) => {
+        if (!acc[part]) acc[part] = {};
+        return acc[part];
+    }, obj);
+    parent[last] = value;
+}
+
 
 function resetAllConfig() {
     if (confirm('Are you sure you want to reset all configuration to default?')) {
@@ -170,39 +139,6 @@ function resetAllConfig() {
                 console.error('Error:', error);
                 alert('Failed to reset configuration. Please try again.');
             });
-    }
-}
-
-function resetField(fieldName) {
-    const fieldParts = fieldName.split('.');
-    let defaultValue = defaultConfig;
-    let currentValue = currentConfig;
-
-    for (const part of fieldParts) {
-        defaultValue = defaultValue[part];
-        currentValue = currentValue[part];
-    }
-
-    if (defaultValue !== undefined) {
-        // Update the current config
-        let target = currentConfig;
-        for (let i = 0; i < fieldParts.length - 1; i++) {
-            target = target[fieldParts[i]];
-        }
-        target[fieldParts[fieldParts.length - 1]] = defaultValue;
-
-        // Update the form
-        const element = document.getElementById(fieldName);
-        if (element) {
-            if (element.type === 'checkbox') {
-                element.checked = defaultValue;
-            } else {
-                element.value = defaultValue;
-            }
-        }
-
-        // Save the updated config
-        saveConfig();
     }
 }
 
