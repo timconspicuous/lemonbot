@@ -84,26 +84,26 @@ export async function generateCanvas(weekRange, events) {
 
         // Loop to decrement font size until it fits within the given width and height
         while (fontSize > 0) {
-            const textWidth = measureText(text, fontSize);
+            const maxLines = Math.floor(maxHeight / fontSize);
+            let lines = [];
+            let currentLine = "";
 
-            // Check if the text fits within the constraints
-            if (textWidth <= maxWidth && fontSize <= maxHeight) {
-                return {fittedText: text, fittedSize: fontSize};
-            } else if (words.length > 1 && fontSize <= maxHeight / 2) {
-                // Check if the text fits if split into two lines
-                for (let i = 0; i <= words.length; i++) {
-                    let lowerPart = words.slice(i).join(" ");
-                    const lowerWidth = measureText(lowerPart, fontSize);
-                    let upperPart = words.slice(0, i).join(" ");
-                    const upperWidth = measureText(upperPart, fontSize);
-                    if (upperWidth <= maxWidth && lowerWidth <= maxWidth) {
-                        return {fittedText: [upperPart, lowerPart], fittedSize: fontSize}
-                    }
-                }        
+            for (let word of words) {
+                let testLine = currentLine ? `${currentLine} ${word}` : word;
+                if (measureText(testLine, fontSize) <= maxWidth) {
+                    currentLine = testLine;
+                } else {
+                    if (currentLine) lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            if (currentLine) lines.push(currentLine);
+            if (lines.length <= Math.floor(maxHeight / fontSize)) {
+                return {fittedText: lines, fittedSize: fontSize};  
             }
             fontSize--;
         }
-        return {fittedText: text, fittedSize: fontSize};
+        return {fittedText: [text], fittedSize: fontSize};
     }
 
     const canvas = createCanvas(size.width, size.height);
@@ -131,11 +131,9 @@ export async function generateCanvas(weekRange, events) {
                 }
                 // Draw entries text
                 const {fittedText, fittedSize} = fitTextToDimensions(ctx, event.summary, entries.maxWidth, entries.maxHeight, entries.size);
-                if (!Array.isArray(fittedText)) {
-                    drawText(ctx, fittedText, entries.posX, entries.posY + spacing * i, fittedSize);
-                } else {
-                    drawText(ctx, fittedText[0], entries.posX, entries.posY - fittedSize / 2 + spacing * i, fittedSize);
-                    drawText(ctx, fittedText[1], entries.posX, entries.posY + fittedSize / 2 + spacing * i, fittedSize);
+                for (let j = 0; j < fittedText.length; j++) {
+                    let offset = (fittedText.length % 2 === 0) ? ((fittedText.length / 2) + 0.5) * fittedSize : Math.floor(fittedText.length / 2) * fittedSize;
+                    drawText(ctx, fittedText[j], entries.posX, entries.posY - offset + fittedSize * j + spacing * i, fittedSize);
                 }
                 // Draw time text
                 drawText(ctx, dateParser(event.start, 'am/pm'), time.posX, time.posY + spacing * i, time.size);
