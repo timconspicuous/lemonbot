@@ -16,7 +16,7 @@ const TWITCH_TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
 const REDIRECT_URI = 'http://localhost:3000/callback';
 if (!process.env.BROADCASTER_ID) {
     try {
-        await getTwitchBroadcasterId();
+        await getTwitchBroadcasterId(process.env.LOGIN_NAME, true);
     } catch (error) {
         console.error('Error establishing Broadcaster ID:', error);
         throw error;
@@ -64,7 +64,7 @@ export function setupTwitchAuth(app) {
                     client_secret: process.env.TWITCH_CLIENT_SECRET,
                     code,
                     grant_type: 'authorization_code',
-                    redirect_uri: REDIRECT_URI
+                    redirect_uri: REDIRECT_URI,
                 }
             });
 
@@ -88,7 +88,7 @@ async function refreshAccessToken() {
                 client_id: process.env.TWITCH_CLIENT_ID,
                 client_secret: process.env.TWITCH_CLIENT_SECRET,
                 refresh_token: process.env.TWITCH_REFRESH_TOKEN,
-                grant_type: 'refresh_token'
+                grant_type: 'refresh_token',
             }
         });
 
@@ -124,7 +124,7 @@ async function getTwitchOAuthToken() {
             params: {
                 client_id: process.env.TWITCH_CLIENT_ID,
                 client_secret: process.env.TWITCH_CLIENT_SECRET,
-                grant_type: 'client_credentials'
+                grant_type: 'client_credentials',
             }
         });
 
@@ -135,26 +135,64 @@ async function getTwitchOAuthToken() {
     }
 }
 
-async function getTwitchBroadcasterId() {
+async function getTwitchBroadcasterId(login = process.env.LOGIN_NAME, update = false) {
     try {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/users', {
             headers: {
                 'Client-ID': process.env.TWITCH_CLIENT_ID,
-                'Authorization': `Bearer ${accessToken}`
+                'Authorization': `Bearer ${accessToken}`,
             },
             params: {
-                login: process.env.LOGIN_NAME
+                login: login,
             }
         });
 
         const broadcasterId = response.data.data[0].id;
-        updateEnv({
-            BROADCASTER_ID: broadcasterId,
-        });
+        if (update) updateEnv({ BROADCASTER_ID: broadcasterId });
         return broadcasterId;
     } catch (error) {
         console.error('Error getting Twitch Broadcaster ID:', error);
+        throw error;
+    }
+}
+
+async function getChannelInformation(broadcasterId = process.env.BROADCASTER_ID) {
+    try {
+        const accessToken = await getTwitchOAuthToken();
+        const response = await axios.get('https://api.twitch.tv/helix/channels', {
+            headers: {
+                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            params: {
+                broadcaster_id: broadcasterId,
+            }
+        });
+
+        return response.data.data;
+    } catch (error) {
+        console.error('Error getting Twitch channel information:', error);
+        throw error;
+    }
+}
+
+async function getStreams(broadcasterId = process.env.BROADCASTER_ID) {
+    try {
+        const accessToken = await getTwitchOAuthToken();
+        const response = await axios.get('https://api.twitch.tv/helix/streams', {
+            headers: {
+                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            params: {
+                user_id: broadcasterId,
+            }
+        });
+
+        return response.data.data;
+    } catch (error) {
+        console.error('Error getting Twitch streams:', error);
         throw error;
     }
 }
