@@ -20,12 +20,8 @@ const token = process.env.TOKEN;
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
 
-// Middleware
-app.use(express.json());
-app.use(express.static('public'));
-
 // Routes
-app.use(configRoutes);
+app.use('/config', express.json(), configRoutes);
 
 // GET route to configure.html
 app.get('/', (req, res) => {

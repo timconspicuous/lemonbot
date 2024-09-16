@@ -294,8 +294,6 @@ const HMAC_PREFIX = 'sha256=';
 
 export function verifyTwitchSignature(secret, message, twitchSignature) {
     const hmac = HMAC_PREFIX + getHmac(secret, message);
-    console.log(twitchSignature);
-    console.log(hmac);
     return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(twitchSignature));
 }
 
@@ -307,13 +305,12 @@ function getHmac(secret, message) {
 
 export function handleTwitchEvent(event) {
     const eventType = event.subscription.type;
-    const broadcasterId = event.event.broadcaster_user_id;
-
+    const broadcasterName = event.event.broadcaster_user_name;
     if (eventType === 'stream.online') {
-        console.log(`Channel ${broadcasterId} went online`);
+        console.log(`Channel ${broadcasterName} went online`);
         // Add your notification logic here
     } else if (eventType === 'stream.offline') {
-        console.log(`Channel ${broadcasterId} went offline`);
+        console.log(`Channel ${broadcasterName} went offline`);
         // Add your notification logic here
     }
 }
