@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 dotenv.config();
 import configManager from '../config/configManager.js';
 import { filterEventsByLocation, filterEventsByWeek } from './calendarUtils.js';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -285,5 +286,64 @@ export async function updateChannelSchedule(events, weekRange) {
     } catch (error) {
         console.error('Error updating Twitch schedule:', error);
         throw error; // Rethrow the error to be caught by the caller
+    }
+}
+
+// Webhook
+const HMAC_PREFIX = 'sha256=';
+
+export function verifyTwitchSignature(secret, message, twitchSignature) {
+    const hmac = HMAC_PREFIX + getHmac(secret, message);
+    console.log(twitchSignature);
+    console.log(hmac);
+    return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(twitchSignature));
+}
+
+function getHmac(secret, message) {
+    return crypto.createHmac('sha256', secret)
+        .update(message)
+        .digest('hex');
+}
+
+export function handleTwitchEvent(event) {
+    const eventType = event.subscription.type;
+    const broadcasterId = event.event.broadcaster_user_id;
+
+    if (eventType === 'stream.online') {
+        console.log(`Channel ${broadcasterId} went online`);
+        // Add your notification logic here
+    } else if (eventType === 'stream.offline') {
+        console.log(`Channel ${broadcasterId} went offline`);
+        // Add your notification logic here
+    }
+}
+
+export async function subscribeToTwitchEvents(broadcasterId, eventType) {
+    const url = 'https://api.twitch.tv/helix/eventsub/subscriptions';
+    const data = {
+        type: eventType,
+        version: '1',
+        condition: { broadcaster_user_id: broadcasterId },
+        transport: {
+            method: 'webhook',
+            callback: `${process.env.WEBHOOK_URL}/webhook`,
+            secret: process.env.WEBHOOK_SECRET,
+        }
+    };
+
+    try {
+        const accessToken = await getTwitchOAuthToken();
+        const response = await axios.post(url, data, {
+            headers: {
+                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log(`Subscribed to ${eventType} for broadcaster ${broadcasterId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error subscribing to Twitch event:', error);
+        throw error;
     }
 }

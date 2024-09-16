@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
 import dotenv from 'dotenv';
-import { setupTwitchAuth } from './utils/twitchUtils.js';
+import { setupTwitchAuth, handleTwitchEvent, subscribeToTwitchEvents, verifyTwitchSignature } from './utils/twitchUtils.js';
 import configManager from './config/configManager.js';
 import configRoutes from './routes/configRoutes.js';
 dotenv.config();
@@ -29,7 +29,48 @@ app.use(configRoutes);
 
 // GET route to configure.html
 app.get('/', (req, res) => {
-  res.redirect('/configure.html');
+    res.redirect('/configure.html');
+});
+
+// Webhook to subscribe to Twitch EventSub
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+    const secret = process.env.WEBHOOK_SECRET;
+    const message = req.headers['twitch-eventsub-message-id'] +
+        req.headers['twitch-eventsub-message-timestamp'] +
+        req.body;
+    const twitchSignature = req.headers['twitch-eventsub-message-signature'];
+
+    if (verifyTwitchSignature(secret, message, twitchSignature)) {
+        console.log("Signatures match");
+
+        let notification;
+        try {
+            notification = JSON.parse(req.body);
+        } catch (error) {
+            console.error('Error parsing webhook body:', error);
+            return res.sendStatus(400);
+        }
+
+        const messageType = req.headers['twitch-eventsub-message-type'];
+
+        if (messageType === 'notification') {
+            handleTwitchEvent(notification);
+            res.sendStatus(204);
+        } else if (messageType === 'webhook_callback_verification') {
+            res.status(200).send(notification.challenge);
+        } else if (messageType === 'revocation') {
+            console.log(`${notification.subscription.type} notifications revoked!`);
+            console.log(`reason: ${notification.subscription.status}`);
+            console.log(`condition: ${JSON.stringify(notification.subscription.condition, null, 4)}`);
+            res.sendStatus(204);
+        } else {
+            console.log(`Unknown message type: ${messageType}`);
+            res.sendStatus(204);
+        }
+    } else {
+        console.log('403 - Signatures didn\'t match.');
+        res.sendStatus(403);
+    }
 });
 
 async function loadCommands() {
@@ -122,6 +163,10 @@ async function main() {
             console.log(`Please visit http://localhost:${port}/login to authenticate with Twitch`);
         });
         await client.login(token);
+
+        // Subscribe to Twitch events
+        await subscribeToTwitchEvents(process.env.BROADCASTER_ID, 'stream.online');
+        await subscribeToTwitchEvents(process.env.BROADCASTER_ID, 'stream.offline');
     } catch (error) {
         console.error('Failed to initialize:', error);
     }
