@@ -330,6 +330,27 @@ export async function subscribeToTwitchEvents(broadcasterId, eventType) {
 
     try {
         const accessToken = await getTwitchOAuthToken();
+
+        // First, check if the subscription already exists
+        const existingSubscriptions = await axios.get(url, {
+            headers: {
+                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Authorization': `Bearer ${accessToken}`,
+            }
+        });
+
+        // Check if the specific event subscription already exists
+        const subscriptionExists = existingSubscriptions.data.data.some(
+            (sub) => sub.type === eventType &&
+                sub.condition.broadcaster_user_id === broadcasterId
+        );
+
+        if (subscriptionExists) {
+            console.log(`Subscription for ${eventType} already exists for broadcaster ${broadcasterId}`);
+            return;
+        }
+
+        // If subscription doesn't exist, create a new one
         const response = await axios.post(url, data, {
             headers: {
                 'Client-ID': process.env.TWITCH_CLIENT_ID,
@@ -337,8 +358,10 @@ export async function subscribeToTwitchEvents(broadcasterId, eventType) {
                 'Content-Type': 'application/json'
             }
         });
+
         console.log(`Subscribed to ${eventType} for broadcaster ${broadcasterId}`);
         return response.data;
+
     } catch (error) {
         console.error('Error subscribing to Twitch event:', error);
         throw error;
