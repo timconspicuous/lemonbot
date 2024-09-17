@@ -16,7 +16,8 @@ const TWITCH_TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
 const REDIRECT_URI = 'http://localhost:3000/callback';
 if (!process.env.BROADCASTER_ID) {
     try {
-        await getTwitchBroadcasterId(process.env.LOGIN_NAME, true);
+        const user = await getTwitchUser(null, process.env.LOGIN_NAME);
+        updateEnv({ BROADCASTER_ID: user.id });
     } catch (error) {
         console.error('Error establishing Broadcaster ID:', error);
         throw error;
@@ -135,24 +136,26 @@ async function getTwitchOAuthToken() {
     }
 }
 
-async function getTwitchBroadcasterId(login = process.env.LOGIN_NAME, update = false) {
+export async function getTwitchUser(id, login) {
+    if (!id && !login) {
+        throw new Error('At least one of id or login must be provided');
+    }
     try {
         const accessToken = await getTwitchOAuthToken();
+        const params = {};
+        if (id) params.id = id;
+        if (login) params.login = login;
         const response = await axios.get('https://api.twitch.tv/helix/users', {
             headers: {
                 'Client-ID': process.env.TWITCH_CLIENT_ID,
                 'Authorization': `Bearer ${accessToken}`,
             },
-            params: {
-                login: login,
-            }
+            params: params,
         });
 
-        const broadcasterId = response.data.data[0].id;
-        if (update) updateEnv({ BROADCASTER_ID: broadcasterId });
-        return broadcasterId;
+        return response.data.data[0];
     } catch (error) {
-        console.error('Error getting Twitch Broadcaster ID:', error);
+        console.error('Error getting Twitch user:', error);
         throw error;
     }
 }
@@ -190,14 +193,14 @@ export async function getStreams(broadcasterId = process.env.BROADCASTER_ID) {
             }
         });
 
-        return response.data.data;
+        return response.data.data[0];
     } catch (error) {
         console.error('Error getting Twitch streams:', error);
         throw error;
     }
 }
 
-async function searchTwitchCategories(name) {
+export async function searchTwitchCategories(name) {
     try {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/search/categories', {
@@ -213,7 +216,7 @@ async function searchTwitchCategories(name) {
             console.warn('Twitch category not found, verify input name.')
         }
 
-        return response.data.data;
+        return response.data.data[0];
     } catch (error) {
         console.error('Error getting Twitch category:', error.response.data);
         throw error;
@@ -295,7 +298,7 @@ async function createSegmentRequestBody(event) {
         'timezone': configManager.get('timezone'),
         'is_recurring': configManager.get('twitch.isRecurring'),
         'duration': duration.toString(),
-        'category_id': (category[0] && category[0].id) ? category[0].id : null,
+        'category_id': (category && category.id) ? category.id : null,
     }
     if (configManager.get('twitch.streamTitleFromEvent')) {
         body.title = event.description;
