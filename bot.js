@@ -4,13 +4,17 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
 import dotenv from 'dotenv';
-import { setupTwitchAuth, handleTwitchEvent, subscribeToTwitchEvents, verifyTwitchSignature } from './utils/twitchUtils.js';
+import { setupTwitchAuth, subscribeToTwitchEvents, verifyTwitchSignature } from './utils/twitchUtils.js';
+import { EventEmitter } from 'events';
+import setupEventHandlers from './events/eventHandler.js';
 import configManager from './config/configManager.js';
 import configRoutes from './routes/configRoutes.js';
 dotenv.config();
 
 const app = express();
 const port = 3000;
+
+const eventSubEmitter = new EventEmitter();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,7 +54,8 @@ app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => {
         const messageType = req.headers['twitch-eventsub-message-type'];
 
         if (messageType === 'notification') {
-            handleTwitchEvent(notification);
+            const subscriptionType = notification.subscription.type;
+            eventSubEmitter.emit(subscriptionType, notification);
             res.sendStatus(204);
         } else if (messageType === 'webhook_callback_verification') {
             res.status(200).send(notification.challenge);
@@ -98,8 +103,9 @@ async function loadCommands() {
 }
 
 client.once(Events.ClientReady, readyClient => {
-    loadCommands(); //does this work?
+    loadCommands();
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+    setupEventHandlers(client, eventSubEmitter);
 });
 
 client.on(Events.InteractionCreate, async interaction => {
@@ -146,6 +152,8 @@ client.on(Events.InteractionCreate, async interaction => {
         }
     }
 });
+
+
 
 // TODO: set up logic so this only runs once when there are no
 // tokens set or they have expired

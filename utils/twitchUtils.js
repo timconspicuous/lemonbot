@@ -157,7 +157,7 @@ async function getTwitchBroadcasterId(login = process.env.LOGIN_NAME, update = f
     }
 }
 
-async function getChannelInformation(broadcasterId = process.env.BROADCASTER_ID) {
+export async function getChannelInformation(broadcasterId = process.env.BROADCASTER_ID) {
     try {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/channels', {
@@ -177,7 +177,7 @@ async function getChannelInformation(broadcasterId = process.env.BROADCASTER_ID)
     }
 }
 
-async function getStreams(broadcasterId = process.env.BROADCASTER_ID) {
+export async function getStreams(broadcasterId = process.env.BROADCASTER_ID) {
     try {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/streams', {
@@ -339,18 +339,6 @@ function getHmac(secret, message) {
     return crypto.createHmac('sha256', secret)
         .update(message)
         .digest('hex');
-}
-
-export function handleTwitchEvent(event) {
-    const eventType = event.subscription.type;
-    const broadcasterName = event.event.broadcaster_user_name;
-    if (eventType === 'stream.online') {
-        console.log(`Channel ${broadcasterName} went online`);
-        // Add your notification logic here
-    } else if (eventType === 'stream.offline') {
-        console.log(`Channel ${broadcasterName} went offline`);
-        // Add your notification logic here
-    }
 }
 
 export async function subscribeToTwitchEvents(broadcasterId, eventType) {
