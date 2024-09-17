@@ -28,6 +28,7 @@ const foldersPath = path.join(__dirname, 'commands');
 app.use('/config', express.json(), configRoutes);
 
 // GET route to configure.html
+app.use(express.static('public'));
 app.get('/', (req, res) => {
     res.redirect('/configure.html');
 });
