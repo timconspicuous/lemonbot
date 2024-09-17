@@ -24,11 +24,22 @@ const token = process.env.TOKEN;
 client.commands = new Collection();
 const foldersPath = path.join(__dirname, 'commands');
 
+// Middleware for static files
+app.use(express.static('public'));
+
+// Middleware for JSON parsing, applied to all routes except /webhook
+app.use((req, res, next) => {
+    if (req.path === '/webhook') {
+        next();
+    } else {
+        express.json()(req, res, next);
+    }
+});
+
 // Routes
-app.use('/config', express.json(), configRoutes);
+app.use(configRoutes);
 
 // GET route to configure.html
-app.use(express.static('public'));
 app.get('/', (req, res) => {
     res.redirect('/configure.html');
 });

@@ -71,5 +71,8 @@
   "twitch": {
     "isRecurring": true,
     "streamTitleFromEvent": true
+  },
+  "eventSub": {
+    "streamOnlineNotification": ""
   }
 }
