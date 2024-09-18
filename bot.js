@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url';
 import express from 'express';
 import ngrok from 'ngrok';
 import dotenv from 'dotenv';
-import { setupTwitchAuth, subscribeToTwitchEvents, verifyTwitchSignature } from './utils/twitchUtils.js';
+import { setupTwitchAuth, subscribeToTwitchEvents, unsubscribeFromAllTwitchEvents, verifyTwitchSignature } from './utils/twitchUtils.js';
 import { EventEmitter } from 'events';
 import setupEventHandlers from './events/eventHandler.js';
 import configManager from './config/configManager.js';
@@ -14,6 +14,8 @@ dotenv.config();
 
 const app = express();
 const port = 3000;
+
+export let ngrokUrl;
 
 const eventSubEmitter = new EventEmitter();
 
@@ -172,7 +174,6 @@ async function startNgrok() {
             addr: port,
             authtoken: process.env.NGROK_AUTH_TOKEN,
         });
-        console.log(`Ngrok tunnel established at: ${url}`);
         return url;
     } catch (error) {
         console.error('Error setting up ngrok:', error);
@@ -188,18 +189,20 @@ async function main() {
     try {
         await configManager.init();
         app.listen(port, () => {
-            console.log(`App listening at http://localhost:${port}`);
-            console.log(`Please visit http://localhost:${port}/login to authenticate with Twitch`);
+            console.log(`App listening at http://localhost:${port}, visit http://localhost:${port}/login to authenticate with Twitch.`);
         });
 
-        const ngrokUrl = await startNgrok();
-        console.log(`Please visit ${ngrokUrl} to access your server`);
+        ngrokUrl = await startNgrok();
+        console.log(`Please visit ${ngrokUrl} to access your server remotely.`);
 
         await client.login(token);
 
         // Subscribe to Twitch events
-        await subscribeToTwitchEvents(process.env.BROADCASTER_ID, 'stream.online', ngrokUrl);
-        await subscribeToTwitchEvents(process.env.BROADCASTER_ID, 'stream.offline', ngrokUrl);
+        await unsubscribeFromAllTwitchEvents();
+        await Promise.all([
+            subscribeToTwitchEvents(process.env.BROADCASTER_ID, 'stream.online'),
+            subscribeToTwitchEvents(process.env.BROADCASTER_ID, 'stream.offline')
+        ]);
     } catch (error) {
         console.error('Failed to initialize:', error);
     }
