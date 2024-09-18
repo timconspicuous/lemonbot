@@ -344,7 +344,7 @@ function getHmac(secret, message) {
         .digest('hex');
 }
 
-export async function subscribeToTwitchEvents(broadcasterId, eventType) {
+export async function subscribeToTwitchEvents(broadcasterId, eventType, ngrokUrl) {
     const url = 'https://api.twitch.tv/helix/eventsub/subscriptions';
     const data = {
         type: eventType,
@@ -352,14 +352,12 @@ export async function subscribeToTwitchEvents(broadcasterId, eventType) {
         condition: { broadcaster_user_id: broadcasterId },
         transport: {
             method: 'webhook',
-            callback: `${process.env.WEBHOOK_URL}/webhook`,
+            callback: `${ngrokUrl}/webhook`,
             secret: process.env.WEBHOOK_SECRET,
         }
     };
-
     try {
         const accessToken = await getTwitchOAuthToken();
-
         // First, check if the subscription already exists
         const existingSubscriptions = await axios.get(url, {
             headers: {
@@ -367,19 +365,25 @@ export async function subscribeToTwitchEvents(broadcasterId, eventType) {
                 'Authorization': `Bearer ${accessToken}`,
             }
         });
-
         // Check if the specific event subscription already exists
-        const subscriptionExists = existingSubscriptions.data.data.some(
+        const existingSubscription = existingSubscriptions.data.data.find(
             (sub) => sub.type === eventType &&
                 sub.condition.broadcaster_user_id === broadcasterId
         );
 
-        if (subscriptionExists) {
-            console.log(`Subscription for ${eventType} already exists for broadcaster ${broadcasterId}`);
-            return;
+        if (existingSubscription) {
+            console.log(`Existing subscription found for ${eventType} for broadcaster ${broadcasterId}. Deleting it.`);
+            // Delete the existing subscription
+            await axios.delete(`${url}?id=${existingSubscription.id}`, {
+                headers: {
+                    'Client-ID': process.env.TWITCH_CLIENT_ID,
+                    'Authorization': `Bearer ${accessToken}`,
+                }
+            });
+            console.log(`Deleted existing subscription for ${eventType} for broadcaster ${broadcasterId}`);
         }
 
-        // If subscription doesn't exist, create a new one
+        // Create a new subscription
         const response = await axios.post(url, data, {
             headers: {
                 'Client-ID': process.env.TWITCH_CLIENT_ID,
@@ -387,12 +391,10 @@ export async function subscribeToTwitchEvents(broadcasterId, eventType) {
                 'Content-Type': 'application/json'
             }
         });
-
         console.log(`Subscribed to ${eventType} for broadcaster ${broadcasterId}`);
         return response.data;
-
     } catch (error) {
-        console.error('Error subscribing to Twitch event:', error);
+        console.error('Error managing Twitch event subscription:', error);
         throw error;
     }
 }

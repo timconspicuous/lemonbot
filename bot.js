@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
+import ngrok from 'ngrok';
 import dotenv from 'dotenv';
 import { setupTwitchAuth, subscribeToTwitchEvents, verifyTwitchSignature } from './utils/twitchUtils.js';
 import { EventEmitter } from 'events';
@@ -165,7 +166,19 @@ client.on(Events.InteractionCreate, async interaction => {
     }
 });
 
-
+async function startNgrok() {
+    try {
+        const url = await ngrok.connect({
+            addr: port,
+            authtoken: process.env.NGROK_AUTH_TOKEN,
+        });
+        console.log(`Ngrok tunnel established at: ${url}`);
+        return url;
+    } catch (error) {
+        console.error('Error setting up ngrok:', error);
+        process.exit(1);
+    }
+}
 
 // TODO: set up logic so this only runs once when there are no
 // tokens set or they have expired
@@ -178,11 +191,15 @@ async function main() {
             console.log(`App listening at http://localhost:${port}`);
             console.log(`Please visit http://localhost:${port}/login to authenticate with Twitch`);
         });
+
+        const ngrokUrl = await startNgrok();
+        console.log(`Please visit ${ngrokUrl} to access your server`);
+
         await client.login(token);
 
         // Subscribe to Twitch events
-        await subscribeToTwitchEvents(process.env.BROADCASTER_ID, 'stream.online');
-        await subscribeToTwitchEvents(process.env.BROADCASTER_ID, 'stream.offline');
+        await subscribeToTwitchEvents(process.env.BROADCASTER_ID, 'stream.online', ngrokUrl);
+        await subscribeToTwitchEvents(process.env.BROADCASTER_ID, 'stream.offline', ngrokUrl);
     } catch (error) {
         console.error('Failed to initialize:', error);
     }
