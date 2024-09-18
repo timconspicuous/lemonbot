@@ -181,10 +181,6 @@ async function startNgrok() {
     }
 }
 
-// TODO: set up logic so this only runs once when there are no
-// tokens set or they have expired
-//setupTwitchAuth(app);
-
 async function main() {
     try {
         await configManager.init();
@@ -195,6 +191,7 @@ async function main() {
         ngrokUrl = await startNgrok();
         console.log(`Please visit ${ngrokUrl} to access your server remotely.`);
 
+        await setupTwitchAuth(app); // TODO: add some conditions
         await client.login(token);
 
         // Subscribe to Twitch events

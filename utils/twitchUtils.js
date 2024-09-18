@@ -49,7 +49,7 @@ function updateEnv(updates) {
     fs.writeFileSync(envPath, updatedContent);
 }
 
-export function setupTwitchAuth(app) {
+export async function setupTwitchAuth(app) {
     app.get('/login', (req, res) => {
         const authUrl = `${TWITCH_AUTH_URL}?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=channel:manage:schedule`;
         res.redirect(authUrl);
