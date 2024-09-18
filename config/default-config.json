@@ -73,6 +73,7 @@
     "streamTitleFromEvent": true
   },
   "eventSub": {
-    "streamOnlineNotification": ""
+    "streamOnlineNotification": "",
+    "streamOfflineNotification": ""
   }
 }
