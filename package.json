@@ -1,6 +1,6 @@
 {
   "name": "lemonbot",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "A Discord bot for Twitch integration",
   "main": "bot.js",
   "type": "module",
