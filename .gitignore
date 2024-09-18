@@ -1,10 +1,7 @@
 node_modules
-config/current-config.json
 .env
+.node-persist
+config/current-config.json
 /assets/*
 !/assets/overlay.png
 /assets/fonts/*
-# SSH for development
-start-server.sh
-lemonbot
-lemonbot.pub
