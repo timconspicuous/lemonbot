@@ -1,9 +1,10 @@
 import express from 'express';
 import configManager from '../config/configManager.js';
 
+
 const router = express.Router();
 
-router.get('/api/config', async (req, res) => {
+router.get('/api/config', (_req, res) => {
   try {
     const config = configManager.getAll();
     res.json(config);
@@ -13,7 +14,7 @@ router.get('/api/config', async (req, res) => {
   }
 });
 
-router.get('/api/config/default', async (req, res) => {
+router.get('/api/config/default', async (_req, res) => {
   try {
     const defaultConfig = await configManager.readDefaultConfig();
     res.json(defaultConfig);
@@ -33,7 +34,7 @@ router.post('/api/config', async (req, res) => {
   }
 });
 
-router.post('/api/config/reset', async (req, res) => {
+router.post('/api/config/reset', async (_req, res) => {
   try {
     const defaultConfig = await configManager.resetConfig();
     res.json({ message: 'Config reset to default successfully', config: defaultConfig });

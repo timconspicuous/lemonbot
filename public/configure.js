@@ -40,12 +40,12 @@ function populateForm(config) {
 }
 
 function flattenObject(obj, prefix = '') {
-    let flattened = new Map();
+    const flattened = new Map();
 
-    for (let key in obj) {
+    for (const key in obj) {
         if (typeof obj[key] === 'object' && obj[key] !== null) {
-            let subMap = flattenObject(obj[key], `${prefix}${key}.`);
-            for (let [subKey, value] of subMap) {
+            const subMap = flattenObject(obj[key], `${prefix}${key}.`);
+            for (const [subKey, value] of subMap) {
                 flattened.set(subKey, value);
             }
         } else {
@@ -100,7 +100,7 @@ function resetField(fieldName) {
         return;
     }
 
-    let defaultValue = getNestedValue(defaultConfig, fieldName);
+    const defaultValue = getNestedValue(defaultConfig, fieldName);
     if (defaultValue === undefined) {
         console.error(`Default value for "${fieldName}" not found in defaultConfig`);
         return;
@@ -140,9 +140,4 @@ function resetAllConfig() {
                 alert('Failed to reset configuration. Please try again.');
             });
     }
-}
-
-function changeNumberInput(inputId, change) {
-    const input = document.getElementById(inputId);
-    input.value = parseInt(input.value) + change;
 }

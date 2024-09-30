@@ -3,6 +3,7 @@ dotenv.config();
 import configManager from '../config/configManager.js';
 import * as atproto from '@atproto/api';
 const { BskyAgent, RichText } = atproto;
+import process from 'node:process';
 
 export async function syndicateToBluesky(altText, buffer) {  
     const agent = new BskyAgent({

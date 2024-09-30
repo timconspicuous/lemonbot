@@ -1,8 +1,8 @@
-import fetch from 'node-fetch';
 import ical from 'ical';
 import dotenv from 'dotenv';
 dotenv.config();
 import configManager from '../config/configManager.js';
+import process from 'node:process';
 
 // Function to get the start and end of the week for a given date
 function getWeekRange(date) {
@@ -55,7 +55,7 @@ export async function fetchCalendar(date = new Date()) {
 }
 
 export function filterEventsByLocation(events, filterArr) {
-    let filteredEvents = {};
+    const filteredEvents = {};
     for (const key in events) {
         const event = events[key];
         if (filterArr && filterArr.includes(event.location)) {

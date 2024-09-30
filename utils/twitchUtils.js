@@ -1,12 +1,14 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 dotenv.config();
 import configManager from '../config/configManager.js';
 import { filterEventsByLocation, filterEventsByWeek } from './calendarUtils.js';
-import crypto from 'crypto';
+import crypto from 'node:crypto';
+import process from 'node:process';
+import { Buffer } from "node:buffer";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -49,8 +51,8 @@ function updateEnv(updates) {
     fs.writeFileSync(envPath, updatedContent);
 }
 
-export async function setupTwitchAuth(app) {
-    app.get('/login', (req, res) => {
+export function setupTwitchAuth(app) {
+    app.get('/login', (_req, res) => {
         const authUrl = `${TWITCH_AUTH_URL}?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=channel:manage:schedule`;
         res.redirect(authUrl);
     });
@@ -247,7 +249,7 @@ async function getChannelSchedule() {
     }
 }
 
-async function createScheduleSegment(segmentData) {
+function createScheduleSegment(segmentData) {
     return twitchApiWrapper(async () => {
         const response = await axios.post('https://api.twitch.tv/helix/schedule/segment', segmentData, {
             headers: {
@@ -264,7 +266,7 @@ async function createScheduleSegment(segmentData) {
     });
 }
 
-async function deleteScheduleSegment(streamId) {
+function deleteScheduleSegment(streamId) {
     return twitchApiWrapper(async () => {
         const response = await axios.delete('https://api.twitch.tv/helix/schedule/segment', {
             headers: {

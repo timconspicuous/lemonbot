@@ -4,6 +4,7 @@ import { getTwitchUser, getChannelInformation, getStreams, searchTwitchCategorie
 import storage from 'node-persist';
 import dotenv from 'dotenv';
 dotenv.config();
+import process from 'node:process';
 
 await storage.initSync();
 

@@ -28,7 +28,7 @@ export async function execute(interaction) {
     // Generate updated reply
     let replyText = '';
     let blueskyAltText = '';
-    const { weekRange, timezone, events } = await fetchCalendar(targetDate);
+    const { weekRange, events } = await fetchCalendar(targetDate);
     for (const key in events) {
         const event = events[key];
         if (event.type === 'VEVENT') {

@@ -1,7 +1,7 @@
-import fs from 'fs/promises';
-import { EventEmitter } from 'events';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import fs from 'node:fs/promises';
+import { EventEmitter } from 'node:events';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,6 +25,7 @@ class ConfigManager extends EventEmitter {
         } catch (error) {
             // If current-config.json doesn't exist, copy from default-config.json
             await fs.copyFile(this.defaultConfigPath, this.configPath);
+            throw error;
         }
     }
 

@@ -1,6 +1,7 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
 dotenv.config();
+import process from 'node:process';
 
 // Does the Dog Die API
 export async function getDTDDInfo(movieTitle) {

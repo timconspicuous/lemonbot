@@ -1,26 +1,25 @@
-import { createCanvas, loadImage, registerFont } from 'canvas';
-import { promises as fs } from 'fs';
-import path from 'path';
+//import { createCanvas, loadImage, registerFont } from "canvas";
+import { createCanvas, loadImage } from "https://deno.land/x/canvas@v1.4.1/mod.ts";
 import configManager from '../config/configManager.js';
+import { join, extname, basename } from "jsr:@std/path@^1.0.6";
 const fontsDirectory = 'assets/fonts';
 
-await registerAllFonts(fontsDirectory);
+//await registerAllFonts(fontsDirectory);
 
 async function registerAllFonts(directory) {
     try {
         // Read all files in the directory
-        const files = await fs.readdir(directory);
-
-        files.forEach(file => {
+        for await (const dirEntry of Deno.readDir(directory)) {
             // Only process .ttf files
-            if (path.extname(file).toLowerCase() === '.ttf') {
-                const fontPath = path.join(directory, file);
-                const fontFamily = path.basename(file, '.ttf'); // Use the file name as family name
+            if (dirEntry.isFile && extname(dirEntry.name).toLowerCase() === '.ttf') {
+                const fontPath = join(directory, dirEntry.name);
+                const fontFamily = basename(dirEntry.name, '.ttf'); // Use the file name as family name
+
                 registerFont(fontPath, { family: fontFamily });
 
                 console.log(`Registered font: ${fontFamily} from ${fontPath}`);
             }
-        });
+        }
     } catch (error) {
         console.error(`Error registering fonts: ${error.message}`);
     }
@@ -72,7 +71,7 @@ export async function generateCanvas(weekRange, events) {
     }
 
     function fitTextToDimensions(ctx, text, maxWidth, maxHeight, initialFontSize) {
-        let words = text.split(" ");
+        const words = text.split(" ");
         let fontSize = initialFontSize;
 
         // Measure the text width and estimated height
@@ -84,12 +83,11 @@ export async function generateCanvas(weekRange, events) {
 
         // Loop to decrement font size until it fits within the given width and height
         while (fontSize > 0) {
-            const maxLines = Math.floor(maxHeight / fontSize);
-            let lines = [];
-            let currentLine = "";
+            const lines = [];
+            let currentLine = '';
 
-            for (let word of words) {
-                let testLine = currentLine ? `${currentLine} ${word}` : word;
+            for (const word of words) {
+                const testLine = currentLine ? `${currentLine} ${word}` : word;
                 if (measureText(testLine, fontSize) <= maxWidth) {
                     currentLine = testLine;
                 } else {
@@ -99,11 +97,11 @@ export async function generateCanvas(weekRange, events) {
             }
             if (currentLine) lines.push(currentLine);
             if (lines.length <= Math.floor(maxHeight / fontSize)) {
-                return {fittedText: lines, fittedSize: fontSize};  
+                return { fittedText: lines, fittedSize: fontSize };
             }
             fontSize--;
         }
-        return {fittedText: [text], fittedSize: fontSize};
+        return { fittedText: [text], fittedSize: fontSize };
     }
 
     const canvas = createCanvas(size.width, size.height);
@@ -130,9 +128,9 @@ export async function generateCanvas(weekRange, events) {
                     drawContainer(entrycolors.none, i);
                 }
                 // Draw entries text
-                const {fittedText, fittedSize} = fitTextToDimensions(ctx, event.summary, entries.maxWidth, entries.maxHeight, entries.size);
+                const { fittedText, fittedSize } = fitTextToDimensions(ctx, event.summary, entries.maxWidth, entries.maxHeight, entries.size);
                 for (let j = 0; j < fittedText.length; j++) {
-                    let offset = (fittedText.length % 2 === 0) ? ((fittedText.length / 2) + 0.5) * fittedSize : Math.floor(fittedText.length / 2) * fittedSize;
+                    const offset = (fittedText.length % 2 === 0) ? ((fittedText.length / 2) + 0.5) * fittedSize : Math.floor(fittedText.length / 2) * fittedSize;
                     drawText(ctx, fittedText[j], entries.posX, entries.posY - offset + fittedSize * j + spacing * i, fittedSize);
                 }
                 // Draw time text
