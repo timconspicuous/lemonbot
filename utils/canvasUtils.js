@@ -132,7 +132,7 @@ export async function generateCanvas(weekRange, events) {
                 // Draw entries text
                 const {fittedText, fittedSize} = fitTextToDimensions(ctx, event.summary, entries.maxWidth, entries.maxHeight, entries.size);
                 for (let j = 0; j < fittedText.length; j++) {
-                    let offset = (fittedText.length % 2 === 0) ? ((fittedText.length / 2) + 0.5) * fittedSize : Math.floor(fittedText.length / 2) * fittedSize;
+                    let offset = (fittedText.length % 2 === 0) ? ((fittedText.length / 2) - 0.5) * fittedSize : Math.floor(fittedText.length / 2) * fittedSize;
                     drawText(ctx, fittedText[j], entries.posX, entries.posY - offset + fittedSize * j + spacing * i, fittedSize);
                 }
                 // Draw time text
