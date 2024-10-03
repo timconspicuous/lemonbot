@@ -14,6 +14,10 @@ import configManager from "./config/configManager.js";
 import configRoutes from "./routes/configRoutes.js";
 dotenv.config();
 import process from "node:process";
+import { exec } from "node:child_process";
+import util from "node:util";
+
+const execPromise = util.promisify(exec);
 
 const app = express();
 const port = 3000;
@@ -110,7 +114,7 @@ async function loadCommands() {
                     const command = await import(filePath);
                     if ("data" in command && "execute" in command) {
                         client.commands.set(command.data.name, command);
-                        console.log(`Loaded command: ${command.data.name}`);
+                        // console.log(`Loaded command: ${command.data.name}`);
                     } else {
                         console.log(
                             `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
@@ -187,8 +191,16 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 });
 
+async function killExistingNgrok() {
+    try {
+        await execPromise('pkill -f ngrok');
+    } catch (_error) {
+        // It's okay if this fails, it might mean no ngrok process was running
+    }
+}
 
 async function startNgrok() {
+    await killExistingNgrok();
     try {
         const url = await ngrok.connect({
             addr: port,
@@ -210,24 +222,24 @@ async function main() {
             );
         });
 
-        // ngrokUrl = await startNgrok();
+        ngrokUrl = await startNgrok();
         console.log(`Please visit ${ngrokUrl} to access your server remotely.`);
 
         // await setupTwitchAuth(app); // TODO: add some conditions
         await client.login(token);
 
         // Subscribe to Twitch events
-        // await unsubscribeFromAllTwitchEvents();
-        // await Promise.all([
-        //     subscribeToTwitchEvents(
-        //         process.env.BROADCASTER_ID,
-        //         "stream.online",
-        //     ),
-        //     subscribeToTwitchEvents(
-        //         process.env.BROADCASTER_ID,
-        //         "stream.offline",
-        //     ),
-        // ]);
+        await unsubscribeFromAllTwitchEvents();
+        await Promise.all([
+            subscribeToTwitchEvents(
+                process.env.BROADCASTER_ID,
+                "stream.online",
+            ),
+            subscribeToTwitchEvents(
+                process.env.BROADCASTER_ID,
+                "stream.offline",
+            ),
+        ]);
     } catch (error) {
         console.error("Failed to initialize:", error);
     }

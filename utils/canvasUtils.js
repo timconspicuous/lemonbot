@@ -1,29 +1,9 @@
-//import { createCanvas, loadImage, registerFont } from "canvas";
-import { createCanvas, loadImage } from "https://deno.land/x/canvas@v1.4.1/mod.ts";
+import { createCanvas, Image, Fonts } from "jsr:@gfx/canvas@0.5.7";
 import configManager from '../config/configManager.js';
-import { join, extname, basename } from "jsr:@std/path@^1.0.6";
+import { Buffer } from 'node:buffer';
 const fontsDirectory = 'assets/fonts';
 
-//await registerAllFonts(fontsDirectory);
-
-async function registerAllFonts(directory) {
-    try {
-        // Read all files in the directory
-        for await (const dirEntry of Deno.readDir(directory)) {
-            // Only process .ttf files
-            if (dirEntry.isFile && extname(dirEntry.name).toLowerCase() === '.ttf') {
-                const fontPath = join(directory, dirEntry.name);
-                const fontFamily = basename(dirEntry.name, '.ttf'); // Use the file name as family name
-
-                registerFont(fontPath, { family: fontFamily });
-
-                console.log(`Registered font: ${fontFamily} from ${fontPath}`);
-            }
-        }
-    } catch (error) {
-        console.error(`Error registering fonts: ${error.message}`);
-    }
-}
+Fonts.registerDir(fontsDirectory);
 
 function dateParser(date, argument) {
     if (argument === "dd.mm.") {
@@ -130,7 +110,7 @@ export async function generateCanvas(weekRange, events) {
                 // Draw entries text
                 const { fittedText, fittedSize } = fitTextToDimensions(ctx, event.summary, entries.maxWidth, entries.maxHeight, entries.size);
                 for (let j = 0; j < fittedText.length; j++) {
-                    const offset = (fittedText.length % 2 === 0) ? ((fittedText.length / 2) + 0.5) * fittedSize : Math.floor(fittedText.length / 2) * fittedSize;
+                    const offset = (fittedText.length % 2 === 0) ? ((fittedText.length / 2) - 0.5) * fittedSize : Math.floor(fittedText.length / 2) * fittedSize;
                     drawText(ctx, fittedText[j], entries.posX, entries.posY - offset + fittedSize * j + spacing * i, fittedSize);
                 }
                 // Draw time text
@@ -141,19 +121,19 @@ export async function generateCanvas(weekRange, events) {
         }
         if (!eventDrawn) {
             drawContainer(entrycolors.none, i);
-            drawText(ctx, '—', entries.posX, entries.posY + spacing * i, entries.size);
+            drawText(ctx, '-', entries.posX, entries.posY + spacing * i, entries.size);
         }
         // Draw weekday text
         drawText(ctx, weekday[i], weekdays.posX, weekdays.posY + spacing * i, weekdays.size);
     }
 
     // Overlay image
-    const overlayImage = await loadImage('assets/' + assets.overlay);
+    const overlayImage = await Image.load('assets/' + assets.overlay);
     ctx.drawImage(overlayImage, 0, 0);
 
     // Add icons
-    const twitchIcon = await loadImage('assets/' + assets.twitchicon);
-    const discordIcon = await loadImage('assets/' + assets.discordicon);
+    const twitchIcon = await Image.load('assets/' + assets.twitchicon);
+    const discordIcon = await Image.load('assets/' + assets.discordicon);
     for (let i = 0; i < icons.length; i++) {
         if (icons[i] === 'Twitch') {
             ctx.drawImage(twitchIcon, container.posX - 15, container.posY - 15 + spacing * i);
@@ -170,5 +150,6 @@ export async function generateCanvas(weekRange, events) {
     friday.setDate(friday.getDate() - 2); // Limit week until Friday if there are only five slots
     drawText(ctx, `${dateParser(weekRange.start, 'dd.mm.')} - ${dateParser(friday, "dd.mm.")}`, weekrange.posX, weekrange.posY, weekrange.size);
 
-    return canvas.toBuffer('image/png');
+    const uint8arr = canvas.encode();
+    return Buffer.from(uint8arr);
 }
