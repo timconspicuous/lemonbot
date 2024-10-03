@@ -189,7 +189,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 function killExistingNgrok() {
     try {
-        //await execPromise('pkill -f ngrok');
         const _command = new Deno.Command("pkill", {
             args: ["-f", "ngrok"],
             stdout: "piped",
