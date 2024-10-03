@@ -1,7 +1,6 @@
 import { Client, Collection, Events, GatewayIntentBits } from "discord.js";
 import express from "express";
 import ngrok from "ngrok";
-import dotenv from "dotenv";
 import {
     setupTwitchAuth,
     subscribeToTwitchEvents,
@@ -12,12 +11,9 @@ import { EventEmitter } from "node:events";
 import setupEventHandlers from "./events/eventHandler.js";
 import configManager from "./config/configManager.js";
 import configRoutes from "./routes/configRoutes.js";
-dotenv.config();
-import process from "node:process";
-import { exec } from "node:child_process";
-import util from "node:util";
+import { load } from "jsr:@std/dotenv";
 
-const execPromise = util.promisify(exec);
+await load({ export: true });
 
 const app = express();
 const port = 3000;
@@ -27,7 +23,7 @@ export let ngrokUrl;
 const eventSubEmitter = new EventEmitter();
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-const token = process.env.TOKEN;
+const token = Deno.env.get("TOKEN");
 client.commands = new Collection();
 const commandsDir = new URL("commands", import.meta.url).pathname;
 
@@ -53,7 +49,7 @@ app.get("/", (_req, res) => {
 
 // Webhook to subscribe to Twitch EventSub
 app.post("/webhook", express.raw({ type: "application/json" }), (req, res) => {
-    const secret = process.env.WEBHOOK_SECRET;
+    const secret = Deno.env.get("WEBHOOK_SECRET");
     const message = req.headers["twitch-eventsub-message-id"] +
         req.headers["twitch-eventsub-message-timestamp"] +
         req.body;
@@ -191,25 +187,29 @@ client.on(Events.InteractionCreate, async (interaction) => {
     }
 });
 
-async function killExistingNgrok() {
+function killExistingNgrok() {
     try {
-        await execPromise('pkill -f ngrok');
+        //await execPromise('pkill -f ngrok');
+        const _command = new Deno.Command("pkill", {
+            args: ["-f", "ngrok"],
+            stdout: "piped",
+            stderr: "piped",
+        });
     } catch (_error) {
         // It's okay if this fails, it might mean no ngrok process was running
     }
 }
 
 async function startNgrok() {
-    await killExistingNgrok();
+    killExistingNgrok();
     try {
         const url = await ngrok.connect({
             addr: port,
-            authtoken: process.env.NGROK_AUTH_TOKEN,
+            authtoken: Deno.env.get("NGROK_AUTH_TOKEN"),
         });
         return url;
     } catch (error) {
         console.error('Error setting up ngrok:', error);
-        process.exit(1);
     }
 }
 
@@ -225,18 +225,18 @@ async function main() {
         ngrokUrl = await startNgrok();
         console.log(`Please visit ${ngrokUrl} to access your server remotely.`);
 
-        // await setupTwitchAuth(app); // TODO: add some conditions
+        setupTwitchAuth(app); // TODO: add some conditions
         await client.login(token);
 
         // Subscribe to Twitch events
         await unsubscribeFromAllTwitchEvents();
         await Promise.all([
             subscribeToTwitchEvents(
-                process.env.BROADCASTER_ID,
+                Deno.env.get("BROADCASTER_ID"),
                 "stream.online",
             ),
             subscribeToTwitchEvents(
-                process.env.BROADCASTER_ID,
+                Deno.env.get("BROADCASTER_ID"),
                 "stream.offline",
             ),
         ]);

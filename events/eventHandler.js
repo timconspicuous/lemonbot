@@ -2,9 +2,9 @@ import { EmbedBuilder } from 'discord.js';
 import configManager from '../config/configManager.js';
 import { getTwitchUser, getChannelInformation, getStreams, searchTwitchCategories } from '../utils/twitchUtils.js';
 import storage from 'node-persist';
-import dotenv from 'dotenv';
-dotenv.config();
-import process from 'node:process';
+import { load } from "jsr:@std/dotenv";
+
+await load({ export: true });
 
 await storage.initSync();
 
@@ -27,7 +27,7 @@ async function handleStreamOnline(client, notification) {
     try {
         const [streamData, channel] = await Promise.all([
             getStreams(broadcasterId),
-            client.channels.fetch(process.env.DISCORD_CHANNEL_ID),
+            client.channels.fetch(Deno.env.get("DISCORD_CHANNEL_ID")),
         ]);
         const gameName = streamData.game_name;
         const [userData, categoryData] = await Promise.all([
@@ -72,7 +72,7 @@ async function handleStreamOffline(client, notification) {
 
     const [messageId, channel] = await Promise.all([
         storage.getItem('streamNotification'),
-        client.channels.fetch(process.env.DISCORD_CHANNEL_ID),
+        client.channels.fetch(Deno.env.get("DISCORD_CHANNEL_ID")),
     ]);
     const [message, userData, channelInfo] = await Promise.all([
         channel.messages.fetch(messageId),

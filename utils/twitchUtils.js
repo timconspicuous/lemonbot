@@ -1,59 +1,28 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-dotenv.config();
 import configManager from '../config/configManager.js';
 import { filterEventsByLocation, filterEventsByWeek } from './calendarUtils.js';
 import crypto from 'node:crypto';
-import process from 'node:process';
 import { Buffer } from "node:buffer";
+import { load } from "jsr:@std/dotenv";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+await load({ export: true });
 
 const TWITCH_AUTH_URL = 'https://id.twitch.tv/oauth2/authorize';
 const TWITCH_TOKEN_URL = 'https://id.twitch.tv/oauth2/token';
 const REDIRECT_URI = 'http://localhost:3000/callback';
-if (!process.env.BROADCASTER_ID) {
+if (!Deno.env.get("BROADCASTER_ID")) {
     try {
-        const user = await getTwitchUser(null, process.env.LOGIN_NAME);
-        updateEnv({ BROADCASTER_ID: user.id });
+        const user = await getTwitchUser(null, Deno.env.get("LOGIN_NAME"));
+        Deno.env.set("BROADCASTER_ID", user.id);
     } catch (error) {
         console.error('Error establishing Broadcaster ID:', error);
         throw error;
     }
 }
 
-function updateEnv(updates) {
-    const envPath = path.resolve(__dirname, '..', '.env');
-    const envContent = fs.readFileSync(envPath, 'utf8');
-
-    let updatedContent = envContent;
-
-    // Loop through the updates object and replace/add each key-value pair
-    for (const [key, value] of Object.entries(updates)) {
-        const regex = new RegExp(`^${key}=.*$`, 'm');
-
-        if (envContent.match(regex)) {
-            // Replace existing key-value pair
-            updatedContent = updatedContent.replace(regex, `${key}=${value}`);
-        } else {
-            // Add new key-value pair if it doesn't exist
-            updatedContent += `\n${key}=${value}`;
-        }
-
-        // Update process.env with new values dynamically
-        process.env[key] = value;
-    }
-
-    fs.writeFileSync(envPath, updatedContent);
-}
-
 export function setupTwitchAuth(app) {
     app.get('/login', (_req, res) => {
-        const authUrl = `${TWITCH_AUTH_URL}?client_id=${process.env.TWITCH_CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=channel:manage:schedule`;
+        const authUrl = `${TWITCH_AUTH_URL}?client_id=${Deno.env.get("TWITCH_CLIENT_ID")}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=channel:manage:schedule`;
         res.redirect(authUrl);
     });
 
@@ -63,8 +32,8 @@ export function setupTwitchAuth(app) {
         try {
             const response = await axios.post(TWITCH_TOKEN_URL, null, {
                 params: {
-                    client_id: process.env.TWITCH_CLIENT_ID,
-                    client_secret: process.env.TWITCH_CLIENT_SECRET,
+                    client_id: Deno.env.get("TWITCH_CLIENT_ID"),
+                    client_secret: Deno.env.get("TWITCH_CLIENT_SECRET"),
                     code,
                     grant_type: 'authorization_code',
                     redirect_uri: REDIRECT_URI,
@@ -72,10 +41,8 @@ export function setupTwitchAuth(app) {
             });
 
             const { access_token, refresh_token } = response.data;
-            updateEnv({
-                TWITCH_ACCESS_TOKEN: access_token,
-                TWITCH_REFRESH_TOKEN: refresh_token,
-            });
+            Deno.env.set("TWITCH_ACCESS_TOKEN", access_token);
+            Deno.env.set("TWITCH_REFRESH_TOKEN", refresh_token);
             res.send('Authentication successful! You can close this window.');
         } catch (error) {
             console.error('Error exchanging code for token:', error);
@@ -88,18 +55,16 @@ async function refreshAccessToken() {
     try {
         const response = await axios.post(TWITCH_TOKEN_URL, null, {
             params: {
-                client_id: process.env.TWITCH_CLIENT_ID,
-                client_secret: process.env.TWITCH_CLIENT_SECRET,
-                refresh_token: process.env.TWITCH_REFRESH_TOKEN,
+                client_id: Deno.env.get("TWITCH_CLIENT_ID"),
+                client_secret: Deno.env.get("TWITCH_CLIENT_SECRET"),
+                refresh_token: Deno.env.get("TWITCH_REFRESH_TOKEN"),
                 grant_type: 'refresh_token',
             }
         });
 
         const { access_token, refresh_token } = response.data;
-        updateEnv({
-            TWITCH_ACCESS_TOKEN: access_token,
-            TWITCH_REFRESH_TOKEN: refresh_token,
-        });
+        Deno.env.set("TWITCH_ACCESS_TOKEN", access_token);
+        Deno.env.set("TWITCH_REFRESH_TOKEN", refresh_token);
 
         return access_token;
     } catch (error) {
@@ -125,8 +90,8 @@ async function getTwitchOAuthToken() {
     try {
         const response = await axios.post(TWITCH_TOKEN_URL, null, {
             params: {
-                client_id: process.env.TWITCH_CLIENT_ID,
-                client_secret: process.env.TWITCH_CLIENT_SECRET,
+                client_id: Deno.env.get("TWITCH_CLIENT_ID"),
+                client_secret: Deno.env.get("TWITCH_CLIENT_SECRET"),
                 grant_type: 'client_credentials',
             }
         });
@@ -149,7 +114,7 @@ export async function getTwitchUser(id, login) {
         if (login) params.login = login;
         const response = await axios.get('https://api.twitch.tv/helix/users', {
             headers: {
-                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Client-ID': Deno.env.get("TWITCH_CLIENT_ID"),
                 'Authorization': `Bearer ${accessToken}`,
             },
             params: params,
@@ -162,12 +127,12 @@ export async function getTwitchUser(id, login) {
     }
 }
 
-export async function getChannelInformation(broadcasterId = process.env.BROADCASTER_ID) {
+export async function getChannelInformation(broadcasterId = Deno.env.get("BROADCASTER_ID")) {
     try {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/channels', {
             headers: {
-                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Client-ID': Deno.env.get("TWITCH_CLIENT_ID"),
                 'Authorization': `Bearer ${accessToken}`,
             },
             params: {
@@ -182,12 +147,12 @@ export async function getChannelInformation(broadcasterId = process.env.BROADCAS
     }
 }
 
-export async function getStreams(broadcasterId = process.env.BROADCASTER_ID) {
+export async function getStreams(broadcasterId = Deno.env.get("BROADCASTER_ID")) {
     try {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/streams', {
             headers: {
-                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Client-ID': Deno.env.get("TWITCH_CLIENT_ID"),
                 'Authorization': `Bearer ${accessToken}`,
             },
             params: {
@@ -207,7 +172,7 @@ export async function searchTwitchCategories(name) {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/search/categories', {
             headers: {
-                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Client-ID': Deno.env.get("TWITCH_CLIENT_ID"),
                 'Authorization': `Bearer ${accessToken}`,
             },
             params: {
@@ -230,11 +195,11 @@ async function getChannelSchedule() {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.get('https://api.twitch.tv/helix/schedule', {
             headers: {
-                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Client-ID': Deno.env.get("TWITCH_CLIENT_ID"),
                 'Authorization': `Bearer ${accessToken}`,
             },
             params: {
-                broadcaster_id: process.env.BROADCASTER_ID,
+                broadcaster_id: Deno.env.get("BROADCASTER_ID"),
             }
         });
 
@@ -253,12 +218,12 @@ function createScheduleSegment(segmentData) {
     return twitchApiWrapper(async () => {
         const response = await axios.post('https://api.twitch.tv/helix/schedule/segment', segmentData, {
             headers: {
-                'Client-Id': process.env.TWITCH_CLIENT_ID,
-                'Authorization': `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
+                'Client-Id': Deno.env.get("TWITCH_CLIENT_ID"),
+                'Authorization': `Bearer ${Deno.env.get("TWITCH_ACCESS_TOKEN")}`,
                 'Content-Type': 'application/json',
             },
             params: {
-                broadcaster_id: process.env.BROADCASTER_ID,
+                broadcaster_id: Deno.env.get("BROADCASTER_ID"),
             }
         });
 
@@ -270,11 +235,11 @@ function deleteScheduleSegment(streamId) {
     return twitchApiWrapper(async () => {
         const response = await axios.delete('https://api.twitch.tv/helix/schedule/segment', {
             headers: {
-                'Client-Id': process.env.TWITCH_CLIENT_ID,
-                'Authorization': `Bearer ${process.env.TWITCH_ACCESS_TOKEN}`,
+                'Client-Id': Deno.env.get("TWITCH_CLIENT_ID"),
+                'Authorization': `Bearer ${Deno.env.get("TWITCH_ACCESS_TOKEN")}`,
             },
             params: {
-                broadcaster_id: process.env.BROADCASTER_ID,
+                broadcaster_id: Deno.env.get("BROADCASTER_ID"),
                 id: streamId,
             }
         });
@@ -356,14 +321,14 @@ export async function subscribeToTwitchEvents(broadcasterId, eventType) {
         transport: {
             method: 'webhook',
             callback: `${ngrokUrl}/webhook`,
-            secret: process.env.WEBHOOK_SECRET,
+            secret: Deno.env.get("WEBHOOK_SECRET"),
         }
     };
     try {
         const accessToken = await getTwitchOAuthToken();
         const response = await axios.post(url, data, {
             headers: {
-                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Client-ID': Deno.env.get("TWITCH_CLIENT_ID"),
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             }
@@ -382,7 +347,7 @@ export async function unsubscribeFromAllTwitchEvents() {
         const accessToken = await getTwitchOAuthToken();
         const existingSubscriptions = await axios.get(url, {
             headers: {
-                'Client-ID': process.env.TWITCH_CLIENT_ID,
+                'Client-ID': Deno.env.get("TWITCH_CLIENT_ID"),
                 'Authorization': `Bearer ${accessToken}`,
             }
         });
@@ -391,7 +356,7 @@ export async function unsubscribeFromAllTwitchEvents() {
             const subscription = existingSubscriptions.data.data[key];
             await axios.delete(url, {
                 headers: {
-                    'Client-ID': process.env.TWITCH_CLIENT_ID,
+                    'Client-ID': Deno.env.get("TWITCH_CLIENT_ID"),
                     'Authorization': `Bearer ${accessToken}`,
                 },
                 params: {

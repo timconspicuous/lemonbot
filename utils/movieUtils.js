@@ -1,7 +1,7 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
-dotenv.config();
-import process from 'node:process';
+import { load } from "jsr:@std/dotenv";
+
+await load({ export: true });
 
 // Does the Dog Die API
 export async function getDTDDInfo(movieTitle) {
@@ -10,7 +10,7 @@ export async function getDTDDInfo(movieTitle) {
         const response = await axios.get('https://www.doesthedogdie.com/dddsearch', {
             headers: {
                 'Accept': 'application/json',
-                'X-API-KEY': process.env.DTDD_API_KEY,
+                'X-API-KEY': Deno.env.get("DTDD_API_KEY"),
             },
             params: {
                 q: queryParam,

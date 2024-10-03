@@ -1,8 +1,8 @@
 import ical from 'ical';
-import dotenv from 'dotenv';
-dotenv.config();
 import configManager from '../config/configManager.js';
-import process from 'node:process';
+import { load } from "jsr:@std/dotenv";
+
+await load({ export: true });
 
 // Function to get the start and end of the week for a given date
 function getWeekRange(date) {
@@ -25,7 +25,7 @@ function getWeekRange(date) {
 export async function fetchCalendar(date = new Date()) {
     const weekRange = getWeekRange(date);
     try {
-        const response = await fetch(process.env.ICAL);
+        const response = await fetch(Deno.env.get("ICAL"));
         if (!response.ok) {
             throw new Error(`Failed to fetch calendar data: ${response.statusText}`);
         }

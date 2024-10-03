@@ -8,6 +8,7 @@
     "jsr:@std/assert@0.214": "0.214.0",
     "jsr:@std/assert@0.217": "0.217.0",
     "jsr:@std/bytes@^1.0.2": "1.0.2",
+    "jsr:@std/dotenv@*": "0.225.2",
     "jsr:@std/encoding@0.214": "0.214.0",
     "jsr:@std/encoding@0.217.0": "0.217.0",
     "jsr:@std/fmt@0.214": "0.214.0",
@@ -25,7 +26,6 @@
     "npm:@types/node-persist@^3.1.8": "3.1.8",
     "npm:axios@^1.7.7": "1.7.7",
     "npm:discord.js@^14.15.3": "14.16.2",
-    "npm:dotenv@^16.4.5": "16.4.5",
     "npm:express@^4.19.2": "4.21.0",
     "npm:ical@0.8": "0.8.0",
     "npm:ngrok@^5.0.0-beta.2": "5.0.0-beta.2",
@@ -69,6 +69,9 @@
     },
     "@std/bytes@1.0.2": {
       "integrity": "fbdee322bbd8c599a6af186a1603b3355e59a5fb1baa139f8f4c3c9a1b3e3d57"
+    },
+    "@std/dotenv@0.225.2": {
+      "integrity": "e2025dce4de6c7bca21dece8baddd4262b09d5187217e231b033e088e0c4dd23"
     },
     "@std/encoding@0.214.0": {
       "integrity": "30a8713e1db22986c7e780555ffd2fefd1d4f9374d734bb41f5970f6c3352af5"
@@ -509,9 +512,6 @@
         "tslib@2.7.0",
         "undici"
       ]
-    },
-    "dotenv@16.4.5": {
-      "integrity": "sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg=="
     },
     "ee-first@1.1.1": {
       "integrity": "sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow=="
@@ -1111,7 +1111,6 @@
         "npm:@types/node-persist@^3.1.8",
         "npm:axios@^1.7.7",
         "npm:discord.js@^14.15.3",
-        "npm:dotenv@^16.4.5",
         "npm:express@^4.19.2",
         "npm:ical@0.8",
         "npm:ngrok@^5.0.0-beta.2",

@@ -1,9 +1,9 @@
-import dotenv from 'dotenv';
-dotenv.config();
 import configManager from '../config/configManager.js';
 import * as atproto from '@atproto/api';
 const { BskyAgent, RichText } = atproto;
-import process from 'node:process';
+import { load } from "jsr:@std/dotenv";
+
+await load({ export: true });
 
 export async function syndicateToBluesky(altText, buffer) {  
     const agent = new BskyAgent({
@@ -11,8 +11,8 @@ export async function syndicateToBluesky(altText, buffer) {
     });
 
     await agent.login({
-        identifier: process.env.BLUESKY_USERNAME,
-        password: process.env.BLUESKY_PASSWORD
+        identifier: Deno.env.get("BLUESKY_USERNAME"),
+        password: Deno.env.get("BLUESKY_PASSWORD")
     });
 
     const text = configManager.get('bluesky.text');
